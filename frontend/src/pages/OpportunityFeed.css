@@ -1,0 +1,62 @@
+.opportunity-feed-container {
+  padding: 4rem 2rem;
+  background-color: #121212;
+  color: white;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+}
+
+.feed-header {
+  font-size: 1.8rem;
+  color: #72E1F0;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.opportunity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.opp-card {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 0 10px rgba(114, 225, 240, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.opp-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #ffffff;
+}
+
+.category-tag {
+  font-size: 0.85rem;
+  color: #72E1F0;
+  margin-bottom: 1rem;
+}
+
+.description {
+  font-size: 0.95rem;
+  color: #ccc;
+  margin-bottom: 1.25rem;
+}
+
+.view-btn {
+  background-color: #72E1F0;
+  color: #121212;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.view-btn:hover {
+  background-color: #5bd5e5;
+}

@@ -1,0 +1,44 @@
+.navbar {
+  background-color: #0a0a0a;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.logo-sponsor {
+  color: #72E1F0;
+  text-shadow: 0 0 5px #72E1F0, 0 0 10px #72E1F0;
+}
+
+.logo-me {
+  color: #FFFFFF;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+.nav-links .cta {
+  background-color: #72E1F0;
+  color: #0a0a0a;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.nav-links .cta:hover {
+  background-color: #5bc0d9;
+}

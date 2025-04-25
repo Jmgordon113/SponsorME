@@ -1,0 +1,72 @@
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #72E1F0;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+h1, h2, h3 {
+  color: #72E1F0;
+}
+
+.dashboard-sponsor, .dashboard-sponsee {
+  padding: 20px;
+  background-color: #121212;
+  color: #ffffff;
+}
+
+.dashboard-sponsor h1, .dashboard-sponsee h1 {
+  color: #72E1F0;
+}
+
+.dashboard-sponsor button, .dashboard-sponsee button {
+  background-color: #72E1F0;
+  color: #121212;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.dashboard-sponsor button:hover, .dashboard-sponsee button:hover {
+  background-color: #5bc0d9;
+}
+
+.dashboard-sponsee ul, .dashboard-sponsor ul {
+  list-style: none;
+  padding: 0;
+}
+
+.dashboard-sponsee li, .dashboard-sponsor li {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #1e1e1e;
+  border-radius: 5px;
+}
+
+.dashboard-sponsee h2, .dashboard-sponsor h2 {
+  color: #72E1F0;
+}
+
+.dashboard-sponsee button, .dashboard-sponsor button {
+  background-color: #72E1F0;
+  color: #121212;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.dashboard-sponsee button:hover, .dashboard-sponsor button:hover {
+  background-color: #5bc0d9;
+}

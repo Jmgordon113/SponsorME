@@ -1,0 +1,82 @@
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #121212;
+}
+
+.login-box {
+  background-color: #1e1e1e;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #72E1F0;
+  text-align: center;
+}
+
+.login-box h1 {
+  color: #72E1F0;
+  margin-bottom: 1rem;
+}
+
+.login-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-box input {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  background-color: #2a2a2a;
+  color: #ffffff;
+}
+
+.login-box input::placeholder {
+  color: #888;
+}
+
+.login-box button {
+  background-color: #72E1F0;
+  color: #121212;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.login-box button:hover {
+  background-color: #5bc0d9;
+}
+
+.apple-login-button {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.apple-login-button:hover {
+  background-color: #333333;
+}
+
+.login-box select {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  background-color: #2a2a2a;
+  color: #ffffff;
+}
+
+.login-box select:focus {
+  outline: none;
+  border: 1px solid #72E1F0;
+}

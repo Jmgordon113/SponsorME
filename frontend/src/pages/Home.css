@@ -1,0 +1,71 @@
+.homepage-container {
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.logo-text {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.sponsor {
+  color: #72E1F0;
+  text-shadow: 0 0 5px #72E1F0, 0 0 15px #72E1F0;
+}
+
+.me {
+  color: #ffffff;
+}
+
+.tagline {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  color: #bbb;
+}
+
+.role-toggle {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.role-toggle button {
+  padding: 0.5rem 1.5rem;
+  background: none;
+  color: white;
+  border: 2px solid #72E1F0;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.role-toggle button.active {
+  background-color: #72E1F0;
+  color: #0a0a0a;
+}
+
+.signup-btn {
+  background-color: #72E1F0;
+  color: #0A0A0A;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.login-link {
+  color: #bbb;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}

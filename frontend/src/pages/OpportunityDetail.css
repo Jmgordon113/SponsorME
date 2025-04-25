@@ -1,0 +1,76 @@
+.opportunity-detail-container {
+  padding: 4rem 2rem;
+  background-color: #121212;
+  color: white;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+  max-width: 900px;
+  margin: auto;
+}
+
+.opportunity-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #72E1F0;
+}
+
+.opportunity-category {
+  font-size: 0.95rem;
+  color: #aaa;
+  margin-bottom: 2rem;
+}
+
+.opportunity-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+.sponsorship-levels h2 {
+  color: #72E1F0;
+  margin-bottom: 1rem;
+}
+
+.sponsorship-levels ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sponsorship-levels li {
+  background: #1e1e1e;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.organizer-section h3 {
+  margin-top: 2rem;
+  color: #72E1F0;
+}
+
+.cta-buttons {
+  margin-top: 3rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.button {
+  background-color: #72E1F0;
+  color: #121212;
+  font-weight: bold;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.button:hover {
+  background-color: #5bd5e5;
+}
+
+.button.secondary {
+  background-color: transparent;
+  border: 2px solid #72E1F0;
+  color: #72E1F0;
+}
