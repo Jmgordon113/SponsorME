@@ -1,62 +1,77 @@
 .opportunity-feed-container {
-  padding: 4rem 2rem;
-  background-color: #121212;
+  padding: 2rem;
   color: white;
-  min-height: 100vh;
   font-family: 'Arial', sans-serif;
 }
 
 .feed-header {
-  font-size: 1.8rem;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
   color: #72E1F0;
-  margin-bottom: 2rem;
-  text-align: center;
+}
+
+.filter-section {
+  margin-bottom: 1.5rem;
+}
+
+.filter-section select {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background: #222;
+  color: white;
 }
 
 .opportunity-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 
 .opp-card {
-  background-color: #1e1e1e;
-  border-radius: 10px;
+  background: #1e1e1e;
   padding: 1.5rem;
-  box-shadow: 0 0 10px rgba(114, 225, 240, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
 .opp-card h3 {
-  margin: 0 0 0.5rem 0;
-  color: #ffffff;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .category-tag {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #72E1F0;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .description {
-  font-size: 0.95rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
   color: #ccc;
-  margin-bottom: 1.25rem;
 }
 
 .view-btn {
-  background-color: #72E1F0;
-  color: #121212;
   padding: 0.5rem 1rem;
-  font-weight: bold;
+  background: #72E1F0;
+  color: #121212;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: bold;
   transition: background 0.3s ease;
 }
 
 .view-btn:hover {
-  background-color: #5bd5e5;
+  background: #5bd5e5;
+}
+
+.error-msg {
+  color: #ff6b6b;
+  font-size: 1rem;
+  margin-top: 1rem;
 }

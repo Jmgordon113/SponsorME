@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../axiosConfig'; // Use the configured axios instance
+import axios from '../utils/axiosConfig';
 import './DashboardSponsee.css';
 import { useNavigate } from 'react-router-dom';
+import OpportunityList from '../components/OpportunityList';
+import MessagePreview from '../components/MessagePreview';
+import LogoutButton from '../components/LogoutButton'; // Import LogoutButton
 
 const DashboardSponsee = () => {
-  const [userName, setUserName] = useState('Sponsee');
-  const [opportunities, setOpportunities] = useState([]);
-  const [messages, setMessages] = useState([]);
+  const [userName, setUserName] = useState('');
   const [totalRaised, setTotalRaised] = useState(0);
+  const [postedOpportunities, setPostedOpportunities] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState({ opportunities: '', messages: '', totals: '' });
 
   const navigate = useNavigate();
 
@@ -20,19 +25,33 @@ const DashboardSponsee = () => {
         const decoded = JSON.parse(atob(token.split('.')[1]));
         setUserName(decoded.name || 'Sponsee');
 
-        const [oppsRes, msgRes, totalRes] = await Promise.all([
+        const [oppsRes, msgRes, totalRes] = await Promise.allSettled([
           axios.get('/api/opportunities/mine', { headers: { Authorization: `Bearer ${token}` } }),
           axios.get('/api/messages/preview', { headers: { Authorization: `Bearer ${token}` } }),
           axios.get('/api/sponsorships/totals', { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
-        setOpportunities(oppsRes.data || []);
-        setMessages(msgRes.data || []);
-        setTotalRaised(totalRes.data?.total || 0);
+        if (oppsRes.status === 'fulfilled') {
+          setPostedOpportunities(oppsRes.value.data || []);
+        } else {
+          setError((prev) => ({ ...prev, opportunities: 'Could not load opportunities. Try again later.' }));
+        }
+
+        if (msgRes.status === 'fulfilled') {
+          setMessages(msgRes.value.data || []);
+        } else {
+          setError((prev) => ({ ...prev, messages: 'Could not load messages. Try again later.' }));
+        }
+
+        if (totalRes.status === 'fulfilled') {
+          setTotalRaised(totalRes.value.data?.total || 0);
+        } else {
+          setError((prev) => ({ ...prev, totals: 'Could not load sponsorship totals. Try again later.' }));
+        }
       } catch (err) {
         console.error('Dashboard load error:', err);
-        setOpportunities([]);
-        setMessages([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -40,83 +59,42 @@ const DashboardSponsee = () => {
   }, [navigate]);
 
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="logo">
-          <span className="sponsor">Sponsor</span><span className="me">Me</span>
-        </div>
-        <nav>
-          <a className="active">Dashboard</a>
-          <a href="/opportunities">My Opportunities</a>
-          <a href="/messages">Messages</a>
-          <a href="/account">Manage</a>
-        </nav>
-      </aside>
+    <div className="dashboard-sponsee">
+      <div className="dashboard-header-container">
+        <h1>Welcome, {userName}! 🌟</h1>
+        <LogoutButton /> {/* Add LogoutButton */}
+      </div>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <>
+          <div className="summary-cards">
+            <div className="card">
+              <h2>Total Raised</h2>
+              <p>💵 ${totalRaised.toLocaleString()}</p>
+              {error.totals && <p className="error-message">{error.totals}</p>}
+            </div>
+            <div className="card">
+              <h2>Opportunities Posted</h2>
+              <p>📋 {postedOpportunities.length}</p>
+              {error.opportunities && <p className="error-message">{error.opportunities}</p>}
+            </div>
+          </div>
 
-      {/* Main Content */}
-      <main className="main">
-        <h1 className="dashboard-header">Sponsee Dashboard | Welcome, {userName}</h1>
-
-        <div className="metrics">
-          <div className="metric-box">
-            <p>Opportunities Posted</p>
-            <h2>{opportunities.length}</h2>
-          </div>
-          <div className="metric-box">
-            <p>Messages</p>
-            <h2>{messages.length}</h2>
-          </div>
-          <div className="metric-box">
-            <p>Total Raised</p>
-            <h2>${totalRaised.toLocaleString()}</h2>
-          </div>
-          <div className="metric-box">
-            <p>Actions</p>
-            <button className="button" onClick={() => navigate('/opportunities/new')}>
-              + Add New Opportunity
+          <div className="section">
+            <h3>Your Posted Opportunities</h3>
+            <OpportunityList opportunities={postedOpportunities} error={error.opportunities} isSponsor={false} />
+            <button className="cta-button" onClick={() => navigate('/create')}>
+              Create New Opportunity
             </button>
           </div>
-        </div>
 
-        <div className="section">
-          <h3>My Opportunities</h3>
-          <div className="card-list">
-            {opportunities.length > 0 ? (
-              opportunities.map((opp, idx) => (
-                <div className="card" key={idx}>
-                  <div>
-                    <strong>{opp.title || 'Opportunity Title'}</strong>
-                    <p>{opp.description || 'Short description of your opportunity.'}</p>
-                  </div>
-                  <button className="button" onClick={() => navigate(`/opportunity/${opp._id}`)}>View</button>
-                </div>
-              ))
-            ) : (
-              <p>No opportunities posted yet.</p>
-            )}
+          <div className="section">
+            <h3>Messages</h3>
+            <MessagePreview messages={messages} error={error.messages} />
           </div>
-        </div>
-
-        <div className="section">
-          <h3>Messages</h3>
-          <div className="card-list">
-            {messages.length > 0 ? (
-              messages.map((msg, idx) => (
-                <div className="card" key={idx}>
-                  <div>
-                    <strong>{msg.senderName || 'Sponsor Name'}</strong>
-                    <p>{msg.snippet || 'Message snippet goes here.'}</p>
-                  </div>
-                  <span style={{ color: '#aaa' }}>{msg.timestamp || '2h ago'}</span>
-                </div>
-              ))
-            ) : (
-              <p>No recent messages.</p>
-            )}
-          </div>
-        </div>
-      </main>
+        </>
+      )}
     </div>
   );
 };

@@ -1,82 +1,56 @@
 import React, { useState } from 'react';
+import axios from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
-import jwtDecode from 'jwt-decode';
-import axios from '../axiosConfig'; // Use the configured axios instance
-import './Login.css';
 
-function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '', role: 'sponsor' });
+const Login = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
     try {
-      const response = await axios.post('/api/auth/login', formData); // Send a POST request
+      const response = await axios.post('/api/auth/login', { email, password });
       const { token } = response.data;
-      localStorage.setItem('token', token); // Save token to localStorage
 
-      // Decode JWT to get user role
-      const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
-
-      // Ensure the selected role matches the token's role
-      if (userRole !== formData.role) {
-        alert('Selected role does not match the account role.');
-        return;
-      }
-
-      // Redirect based on user role
-      if (userRole === 'sponsor') {
-        navigate('/dashboard-sponsor');
-      } else if (userRole === 'sponsee') {
-        navigate('/dashboard-sponsee');
+      if (token) {
+        localStorage.setItem('token', token); // Save token to localStorage
+        navigate('/dashboard-sponsor'); // Redirect to the sponsor dashboard
       } else {
-        alert('Invalid user role');
+        setError('No token received. Please try again.');
       }
-    } catch (error) {
-      alert(error.response?.data?.error || 'Login failed');
+    } catch (err) {
+      console.error('Login failed:', err);
+      setError('Invalid email or password. Please try again.');
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-box">
-        <h1>Login</h1>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            required
-          >
-            <option value="sponsor">Sponsor</option>
-            <option value="sponsee">Sponsee</option>
-          </select>
-          <button type="submit">Login</button>
-        </form>
-      </div>
+    <div className="login-container">
+      <h1>Login</h1>
+      {error && <p className="error-msg">{error}</p>}
+      <form onSubmit={handleLogin}>
+        <label>Email:</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <label>Password:</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Login</button>
+      </form>
     </div>
   );
-}
+};
 
 export default Login;

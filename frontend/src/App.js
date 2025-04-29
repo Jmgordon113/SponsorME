@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
+// import ToastContainer from './components/ToastContainer'; // disable this temporarily
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
@@ -10,8 +11,7 @@ import Feed from './pages/Feed';
 import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import Account from './pages/Account';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// import 'react-toastify/dist/ReactToastify.css'; // disable this temporarily
 
 function App() {
   return (
@@ -30,7 +30,7 @@ function App() {
           <Route path="/account" element={<Account />} />
         </Routes>
       </Router>
-      <ToastContainer />
+      {/* <ToastContainer /> */} {/* disable this temporarily */}
     </>
   );
 }

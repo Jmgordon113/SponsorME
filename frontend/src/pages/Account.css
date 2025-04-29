@@ -52,3 +52,36 @@ button:hover {
   text-align: center;
   width: 300px;
 }
+
+.account-container {
+  padding: 2rem;
+  color: white;
+  font-family: 'Arial', sans-serif;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #72E1F0;
+}
+
+.profile-card {
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  margin: auto;
+}
+
+.profile-card p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.error-msg {
+  color: #ff6b6b;
+  font-size: 1rem;
+  margin-top: 1rem;
+  text-align: center;
+}

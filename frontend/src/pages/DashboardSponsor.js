@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../axiosConfig'; // Use the configured axios instance
-import './DashboardSponsor.css'; // Add this for layout styling
-import { useNavigate } from 'react-router-dom'; // Corrected import statement
+import axios from '../axiosConfig';
+import './DashboardSponsor.css';
+import { useNavigate } from 'react-router-dom';
+import OpportunityList from '../components/OpportunityList';
+import MessagePreview from '../components/MessagePreview';
+import LogoutButton from '../components/LogoutButton'; // Import LogoutButton
 
 const DashboardSponsor = () => {
   const [userName, setUserName] = useState('Sponsor');
   const [sponsoredOpps, setSponsoredOpps] = useState([]);
   const [messages, setMessages] = useState([]);
   const [totalSponsored, setTotalSponsored] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState({ opportunities: '', messages: '', totals: '' });
 
   const navigate = useNavigate();
 
@@ -20,19 +25,33 @@ const DashboardSponsor = () => {
         const decoded = JSON.parse(atob(token.split('.')[1]));
         setUserName(decoded.name || 'Sponsor');
 
-        const [oppRes, msgRes, totalRes] = await Promise.all([
+        const [oppRes, msgRes, totalRes] = await Promise.allSettled([
           axios.get('/api/opportunities/sponsorships/mine', { headers: { Authorization: `Bearer ${token}` } }),
           axios.get('/api/messages/preview', { headers: { Authorization: `Bearer ${token}` } }),
           axios.get('/api/sponsorships/totals', { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
-        setSponsoredOpps(oppRes.data || []);
-        setMessages(msgRes.data || []);
-        setTotalSponsored(totalRes.data?.total || 0);
+        if (oppRes.status === 'fulfilled') {
+          setSponsoredOpps(oppRes.value.data || []);
+        } else {
+          setError((prev) => ({ ...prev, opportunities: 'Could not load opportunities. Try again later.' }));
+        }
+
+        if (msgRes.status === 'fulfilled') {
+          setMessages(msgRes.value.data || []);
+        } else {
+          setError((prev) => ({ ...prev, messages: 'Could not load messages. Try again later.' }));
+        }
+
+        if (totalRes.status === 'fulfilled') {
+          setTotalSponsored(totalRes.value.data?.total || 0);
+        } else {
+          setError((prev) => ({ ...prev, totals: 'Could not load sponsorship totals. Try again later.' }));
+        }
       } catch (err) {
         console.error('Dashboard error:', err);
-        setSponsoredOpps([]);
-        setMessages([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -54,61 +73,42 @@ const DashboardSponsor = () => {
       </aside>
 
       <main className="main">
-        <h1 className="dashboard-header">Sponsor Dashboard | Welcome, {userName}</h1>
-
-        <div className="metrics">
-          <div className="metric-box">
-            <p>Opportunities</p>
-            <h2>{sponsoredOpps?.length || 0}</h2> {/* Handle missing data */}
-          </div>
-          <div className="metric-box">
-            <p>Messages</p>
-            <h2>{messages?.length || 0}</h2> {/* Handle missing data */}
-          </div>
-          <div className="metric-box">
-            <p>Total Sponsored</p>
-            <h2>${totalSponsored?.toLocaleString() || 0}</h2> {/* Handle missing data */}
-          </div>
+        <div className="dashboard-header-container">
+          <h1 className="dashboard-header">Sponsor Dashboard | Welcome, {userName}</h1>
+          <LogoutButton /> {/* Add LogoutButton */}
         </div>
 
-        <div className="section">
-          <h3>Opportunities</h3>
-          <button className="button" onClick={() => navigate('/feed')}>Filter Opportunities</button>
-          <div className="card-list">
-            {sponsoredOpps?.length > 0 ? (
-              sponsoredOpps.map((opp, idx) => (
-                <div className="card" key={idx}>
-                  <div>
-                    <strong>{opp.title || 'Opportunity Title'}</strong>
-                    <p>{opp.description || 'Short description of the opportunity.'}</p>
-                  </div>
-                  <button className="button" onClick={() => navigate(`/opportunity/${opp._id}`)}>View</button>
-                </div>
-              ))
-            ) : (
-              <p>No sponsored opportunities found.</p>
-            )}
-          </div>
-        </div>
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : (
+          <>
+            <div className="summary-cards">
+              <div className="card">
+                <h2>Total Sponsored</h2>
+                <p>💰 ${totalSponsored.toLocaleString()}</p>
+                {error.totals && <p className="error-message">{error.totals}</p>}
+              </div>
+              <div className="card">
+                <h2>Opportunities Sponsored</h2>
+                <p>📋 {sponsoredOpps.length}</p>
+                {error.opportunities && <p className="error-message">{error.opportunities}</p>}
+              </div>
+            </div>
 
-        <div className="section">
-          <h3>Messages</h3>
-          <div className="card-list">
-            {messages?.length > 0 ? (
-              messages.map((msg, idx) => (
-                <div className="card" key={idx}>
-                  <div>
-                    <strong>{msg.senderName || 'Sponsee Name'}</strong>
-                    <p>{msg.snippet || 'Message snippet goes here.'}</p>
-                  </div>
-                  <span style={{ color: '#aaa' }}>{msg.timestamp || '2h ago'}</span>
-                </div>
-              ))
-            ) : (
-              <p>No recent messages.</p>
-            )}
-          </div>
-        </div>
+            <div className="section">
+              <h3>Opportunities</h3>
+              <OpportunityList opportunities={sponsoredOpps} error={error.opportunities} isSponsor={true} />
+              <button className="cta-button" onClick={() => navigate('/feed')}>
+                Browse More Opportunities
+              </button>
+            </div>
+
+            <div className="section">
+              <h3>Messages</h3>
+              <MessagePreview messages={messages} error={error.messages} />
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

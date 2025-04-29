@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../axiosConfig'; // Use the configured axios instance
 import './Messages.css';
+import LogoutButton from '../components/LogoutButton'; // Import LogoutButton
 
 const Messages = () => {
   const [conversations, setConversations] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -18,6 +21,9 @@ const Messages = () => {
         setConversations(res.data);
       } catch (err) {
         console.error('Failed to load conversations:', err);
+        setError('Failed to load conversations. Please try again later.');
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -34,6 +40,7 @@ const Messages = () => {
       setSelectedUserId(userId);
     } catch (err) {
       console.error('Failed to load messages:', err);
+      setError('Failed to load messages. Please try again later.');
     }
   };
 
@@ -53,11 +60,24 @@ const Messages = () => {
       setInputMessage('');
     } catch (err) {
       console.error('Failed to send message:', err);
+      setError('Failed to send message. Please try again later.');
     }
   };
 
+  if (isLoading) {
+    return <p>Loading messages...</p>;
+  }
+
+  if (error) {
+    return <p className="error-msg">{error}</p>;
+  }
+
   return (
     <div className="messages-container">
+      <div className="messages-header-container">
+        <h1>Inbox</h1>
+        <LogoutButton /> {/* Add LogoutButton */}
+      </div>
       <div className="conversation-list">
         <h3>Messages</h3>
         {conversations.map((user, index) => (

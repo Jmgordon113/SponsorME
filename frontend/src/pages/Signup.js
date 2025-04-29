@@ -1,85 +1,83 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import axios from '../axiosConfig'; // Use the configured axios instance
-import './Signup.css';
+import axios from '../utils/axiosConfig'; // Make sure baseURL = localhost:5001
+import { useNavigate } from 'react-router-dom';
 
-function Signup() {
-  const [searchParams] = useSearchParams();
-  const roleFromQuery = searchParams.get('role') || 'sponsor';
-
+const Signup = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: roleFromQuery,
+    role: 'sponsee', // Default role
   });
-
-  const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
+    setError(null);
+
     try {
-      const res = await axios.post('/api/auth/signup', formData); // Use the configured axios instance
-      const token = res.data.token;
-      localStorage.setItem('token', token); // Save token to localStorage
+      const response = await axios.post('/api/auth/signup', formData);
+      const { token } = response.data;
 
-      // Decode JWT to get role
-      const decoded = JSON.parse(atob(token.split('.')[1]));
-      const role = decoded.role || formData.role;
-
-      // Redirect to the appropriate dashboard
-      navigate(role === 'sponsor' ? '/dashboard-sponsor' : '/dashboard-sponsee');
+      if (token) {
+        localStorage.setItem('token', token); // ✅ Save the dynamic token here
+        navigate('/dashboard-sponsee'); // ✅ Redirect after signup
+      } else {
+        setError('No token received. Please try again.');
+      }
     } catch (err) {
       console.error('Signup failed:', err);
-      alert('Signup failed. Please try again.');
+      setError('Failed to create account. Please try again.');
     }
   };
 
   return (
     <div className="signup-container">
-      <h2>Create Your Account</h2>
-      <form className="signup-form" onSubmit={handleSubmit}>
+      <h1>Signup</h1>
+      {error && <p className="error-msg">{error}</p>}
+      <form onSubmit={handleSignup}>
+        <label>Name:</label>
         <input
           type="text"
           name="name"
-          placeholder="Name"
           value={formData.name}
           onChange={handleChange}
           required
         />
+        
+        <label>Email:</label>
         <input
           type="email"
           name="email"
-          placeholder="Email"
           value={formData.email}
           onChange={handleChange}
           required
         />
+        
+        <label>Password:</label>
         <input
           type="password"
           name="password"
-          placeholder="Password"
           value={formData.password}
           onChange={handleChange}
           required
         />
-        <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          required
-        >
-          <option value="sponsor">Sponsor</option>
+        
+        <label>Role:</label>
+        <select name="role" value={formData.role} onChange={handleChange}>
           <option value="sponsee">Sponsee</option>
+          <option value="sponsor">Sponsor</option>
         </select>
-        <button type="submit">Sign Up</button>
+        
+        <button type="submit">Signup</button>
       </form>
     </div>
   );
-}
+};
 
 export default Signup;

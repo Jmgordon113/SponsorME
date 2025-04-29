@@ -4,6 +4,7 @@
   background-color: #121212;
   color: white;
   font-family: 'Arial', sans-serif;
+  padding: 2rem;
 }
 
 .conversation-list {
@@ -95,4 +96,39 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #72E1F0;
+}
+
+.message-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.message-preview {
+  background: #1e1e1e;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.message-preview div {
+  margin-bottom: 0.5rem;
+}
+
+.message-snippet {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.error-msg {
+  color: #ff6b6b;
+  font-size: 1rem;
+  margin-top: 1rem;
 }

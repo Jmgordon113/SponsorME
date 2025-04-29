@@ -6,6 +6,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 const OpportunityDetail = () => {
   const { id } = useParams();
   const [opportunity, setOpportunity] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,7 +17,10 @@ const OpportunityDetail = () => {
         setOpportunity(res.data);
       } catch (err) {
         console.error('Error fetching opportunity:', err);
+        setError('Failed to load opportunity. Please try again later.');
         navigate('/feed');
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -61,8 +66,16 @@ const OpportunityDetail = () => {
     }
   };
 
+  if (isLoading) {
+    return <p>Loading opportunity...</p>;
+  }
+
+  if (error) {
+    return <p className="error-msg">{error}</p>;
+  }
+
   if (!opportunity) {
-    return <div className="opportunity-detail-container">Loading opportunity...</div>;
+    return <p>Opportunity not found.</p>;
   }
 
   return (

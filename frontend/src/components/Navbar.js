@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import LogoutButton from './LogoutButton'; // Import LogoutButton
 import './Navbar.css';
 
 function Navbar() {
@@ -16,6 +17,7 @@ function Navbar() {
         <li><Link to="/feed">Feed</Link></li>
         <li><Link to="/dashboard-sponsor">Dashboard</Link></li>
         <li><Link to="/signup" className="cta">Sign Up</Link></li>
+        <li><LogoutButton /> {/* Add LogoutButton */}</li>
       </ul>
     </nav>
   );

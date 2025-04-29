@@ -5,11 +5,13 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token'); // Dynamically fetch token from localStorage
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`; // Attach Bearer token
   }
   return config;
+}, (error) => {
+  return Promise.reject(error); // Handle request errors
 });
 
 // Function to update user profile

@@ -1,5 +1,5 @@
 .opportunity-detail-container {
-  padding: 4rem 2rem;
+  padding: 2rem;
   background-color: #121212;
   color: white;
   min-height: 100vh;
@@ -73,4 +73,47 @@
   background-color: transparent;
   border: 2px solid #72E1F0;
   color: #72E1F0;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #72E1F0;
+}
+
+.category-tag {
+  font-size: 1rem;
+  color: #72E1F0;
+  margin-bottom: 1rem;
+}
+
+.description {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #ccc;
+}
+
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #72E1F0;
+}
+
+.levels-list {
+  list-style: none;
+  padding: 0;
+}
+
+.levels-list li {
+  background: #1e1e1e;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.error-msg {
+  color: #ff6b6b;
+  font-size: 1rem;
+  margin-top: 1rem;
 }
