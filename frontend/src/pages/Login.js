@@ -18,7 +18,8 @@ const Login = () => {
 
       if (token) {
         localStorage.setItem('token', token); // Save token to localStorage
-        navigate('/dashboard-sponsor'); // Redirect to the sponsor dashboard
+        const decoded = JSON.parse(atob(token.split('.')[1]));
+        navigate(decoded.role === 'sponsee' ? '/dashboard-sponsee' : '/dashboard-sponsor'); // Redirect based on role
       } else {
         setError('No token received. Please try again.');
       }

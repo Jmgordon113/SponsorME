@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-// import ToastContainer from './components/ToastContainer'; // disable this temporarily
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
@@ -11,9 +10,7 @@ import Feed from './pages/Feed';
 import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import Account from './pages/Account';
-// import 'react-toastify/dist/ReactToastify.css'; // disable this temporarily
-import CreateOpportunity from './pages/CreateOpportunity'; // Import CreateOpportunity
-import EditOpportunity from './pages/EditOpportunity'; // Import EditOpportunity
+import OpportunityDetails from './pages/OpportunityDetails'; // Import OpportunityDetails
 
 function App() {
   return (
@@ -30,11 +27,9 @@ function App() {
           <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/account" element={<Account />} />
-          <Route path="/create" element={<CreateOpportunity />} /> {/* Add this route */}
-          <Route path="/opportunity/edit/:id" element={<EditOpportunity />} /> {/* Add this route */}
+          <Route path="/opportunities/:id" element={<OpportunityDetails />} /> {/* Add this route */}
         </Routes>
       </Router>
-      {/* <ToastContainer /> */} {/* disable this temporarily */}
     </>
   );
 }

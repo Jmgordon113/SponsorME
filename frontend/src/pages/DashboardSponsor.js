@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../axiosConfig';
+import axios from '../utils/axiosConfig';
 import './DashboardSponsor.css';
 import { useNavigate } from 'react-router-dom';
 import OpportunityList from '../components/OpportunityList';

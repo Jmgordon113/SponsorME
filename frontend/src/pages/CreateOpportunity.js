@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../axiosConfig';
+import axios from '../utils/axiosConfig';
 import './CreateOpportunity.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -59,10 +59,7 @@ const CreateOpportunity = () => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('/api/opportunities', formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.post('/api/opportunities', formData);
       setMessage('Opportunity created successfully!');
       setTimeout(() => navigate('/dashboard-sponsee'), 1500);
     } catch (err) {

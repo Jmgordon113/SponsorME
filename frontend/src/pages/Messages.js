@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../axiosConfig'; // Use the configured axios instance
+import axios from '../utils/axiosConfig'; // Use the configured axios instance
+import { io } from 'socket.io-client';
 import './Messages.css';
-import LogoutButton from '../components/LogoutButton'; // Import LogoutButton
+import LogoutButton from '../components/LogoutButton';
+
+const socket = io('http://localhost:5001');
 
 const Messages = () => {
   const [conversations, setConversations] = useState([]);
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [selectedConversation, setSelectedConversation] = useState(null);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,10 +16,7 @@ const Messages = () => {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('/api/messages/preview', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get('/api/messages/conversations'); // Fetch all conversations
         setConversations(res.data);
       } catch (err) {
         console.error('Failed to load conversations:', err);
@@ -30,37 +29,49 @@ const Messages = () => {
     fetchConversations();
   }, []);
 
-  const fetchMessages = async (userId) => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`/api/messages/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMessages(res.data);
-      setSelectedUserId(userId);
-    } catch (err) {
-      console.error('Failed to load messages:', err);
-      setError('Failed to load messages. Please try again later.');
-    }
+  useEffect(() => {
+    const currentUserId = localStorage.getItem('userId');
+    socket.emit('join', currentUserId);
+
+    socket.on('receive-message', (msg) => {
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.user._id === msg.sender || conv.user._id === msg.receiver
+            ? { ...conv, messages: [...conv.messages, msg] }
+            : conv
+        )
+      );
+    });
+
+    return () => socket.disconnect();
+  }, []);
+
+  const handleSelectConversation = (conversation) => {
+    setSelectedConversation(conversation);
   };
 
   const sendMessage = async () => {
     if (!inputMessage.trim()) return;
+
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.post(
-        '/api/messages',
-        {
-          recipientId: selectedUserId,
-          content: inputMessage,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setMessages([...messages, res.data.data]);
+      const res = await axios.post('/api/messages', {
+        receiverId: selectedConversation.user._id,
+        text: inputMessage,
+        opportunityId: selectedConversation.messages[0]?.opportunityId?._id || null,
+      });
+      setSelectedConversation({
+        ...selectedConversation,
+        messages: [...selectedConversation.messages, res.data],
+      });
       setInputMessage('');
+      socket.emit('send-message', { receiverId: selectedConversation.user._id, message: res.data });
     } catch (err) {
-      console.error('Failed to send message:', err);
-      setError('Failed to send message. Please try again later.');
+      if (err.response?.status === 403) {
+        alert('You can only message a sponsor who contacted you first.');
+      } else {
+        console.error('Failed to send message:', err);
+        alert('Failed to send message. Please try again.');
+      }
     }
   };
 
@@ -76,29 +87,52 @@ const Messages = () => {
     <div className="messages-container">
       <div className="messages-header-container">
         <h1>Inbox</h1>
-        <LogoutButton /> {/* Add LogoutButton */}
+        <LogoutButton />
       </div>
       <div className="conversation-list">
-        <h3>Messages</h3>
-        {conversations.map((user, index) => (
-          <div
-            key={index}
-            className={`conversation-item ${user._id === selectedUserId ? 'active' : ''}`}
-            onClick={() => fetchMessages(user._id)}
-          >
-            {user.name}
-          </div>
-        ))}
+        <h3>Conversations</h3>
+        {conversations.length > 0 ? (
+          conversations.map((conversation) => (
+            <div
+              key={conversation.user._id}
+              className={`conversation-item ${
+                selectedConversation?.user._id === conversation.user._id ? 'active' : ''
+              }`}
+              onClick={() => handleSelectConversation(conversation)}
+            >
+              {conversation.user.name}
+              {conversation.messages[0]?.opportunityId && (
+                <p style={{ fontSize: '0.85rem', color: '#555' }}>
+                  Regarding: {conversation.messages[0].opportunityId.title}
+                </p>
+              )}
+            </div>
+          ))
+        ) : (
+          <p>No conversations found.</p>
+        )}
       </div>
 
       <div className="chat-panel">
-        {selectedUserId ? (
+        {selectedConversation ? (
           <>
             <div className="chat-history">
-              {messages.map((msg, idx) => (
-                <div key={idx} className={`chat-bubble ${msg.sender._id === selectedUserId ? 'incoming' : 'outgoing'}`}>
-                  <p>{msg.content}</p>
-                  <span className="timestamp">{new Date(msg.createdAt).toLocaleTimeString()}</span>
+              {selectedConversation.messages.map((msg) => (
+                <div
+                  key={msg._id}
+                  className={`chat-bubble ${
+                    msg.sender._id === selectedConversation.user._id ? 'incoming' : 'outgoing'
+                  }`}
+                >
+                  <p>{msg.text}</p>
+                  {msg.opportunityId && (
+                    <p style={{ fontSize: '0.85rem', color: '#555' }}>
+                      Regarding: {msg.opportunityId.title}
+                    </p>
+                  )}
+                  <span className="timestamp">
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </span>
                 </div>
               ))}
             </div>
@@ -114,7 +148,7 @@ const Messages = () => {
             </div>
           </>
         ) : (
-          <div className="chat-placeholder">Select a conversation to start chatting.</div>
+          <p>Select a conversation to view messages.</p>
         )}
       </div>
     </div>

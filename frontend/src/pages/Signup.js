@@ -26,7 +26,8 @@ const Signup = () => {
 
       if (token) {
         localStorage.setItem('token', token); // ✅ Save the dynamic token here
-        navigate('/dashboard-sponsee'); // ✅ Redirect after signup
+        const decoded = JSON.parse(atob(token.split('.')[1]));
+        navigate(decoded.role === 'sponsee' ? '/dashboard-sponsee' : '/dashboard-sponsor'); // ✅ Redirect based on role
       } else {
         setError('No token received. Please try again.');
       }

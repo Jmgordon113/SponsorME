@@ -1,85 +1,138 @@
 const express = require('express');
 const router = express.Router();
-const Message = require('../models/Message');
+const mongoose = require('mongoose');
 const requireAuth = require('../middleware/requireAuth');
+const Message = require('../models/Message');
+const User = require('../models/User');
 
-// ✅ Send a new message
-router.post('/', requireAuth, async (req, res) => {
-  try {
-    const { recipientId, recipientEmail, content } = req.body;
-
-    // Find the recipient by userId or email
-    let recipient;
-    if (recipientId) {
-      recipient = await User.findById(recipientId);
-    } else if (recipientEmail) {
-      recipient = await User.findOne({ email: recipientEmail });
-    }
-
-    if (!recipient) {
-      return res.status(404).json({ error: 'Recipient not found' });
-    }
-
-    const message = new Message({
-      sender: req.user._id,
-      recipient: recipient._id,
-      content,
-    });
-
-    await message.save();
-    res.status(201).json({ message: 'Message sent successfully', data: message });
-  } catch (err) {
-    console.error('Send message error:', err);
-    res.status(500).json({ error: 'Server error while sending message' });
-  }
-});
-
-// ✅ Get conversation with another user
-router.get('/:userId', requireAuth, async (req, res) => {
-  try {
-    const messages = await Message.find({
-      $or: [
-        { sender: req.user._id, recipient: req.params.userId },
-        { sender: req.params.userId, recipient: req.user._id },
-      ],
-    })
-      .sort({ createdAt: 1 })
-      .populate('sender', 'name')
-      .populate('recipient', 'name');
-
-    res.json(messages);
-  } catch (err) {
-    console.error('Get messages error:', err);
-    res.status(500).json({ error: 'Server error while retrieving messages' });
-  }
-});
-
-// GET /api/messages/preview → list of people this user has messaged
+// Static route for message previews
 router.get('/preview', requireAuth, async (req, res) => {
   try {
     const userId = req.user._id;
 
     // Fetch all messages involving this user
     const messages = await Message.find({
-      $or: [{ sender: userId }, { recipient: userId }],
-    });
+      $or: [{ sender: userId }, { receiver: userId }],
+    })
+      .sort({ timestamp: -1 })
+      .limit(10)
+      .populate('sender', 'name')
+      .populate('receiver', 'name');
 
-    // Extract unique user IDs the user has communicated with
-    const partnerIds = new Set();
-    messages.forEach((msg) => {
-      if (msg.sender.toString() !== userId.toString()) {
-        partnerIds.add(msg.sender.toString());
-      }
-      if (msg.recipient.toString() !== userId.toString()) {
-        partnerIds.add(msg.recipient.toString());
-      }
-    });
+    const previews = messages.map((msg) => ({
+      id: msg._id,
+      senderName: msg.sender._id.toString() === userId.toString() ? msg.receiver.name : msg.sender.name,
+      snippet: msg.text,
+      timestamp: msg.timestamp,
+    }));
 
-    const partners = await User.find({ _id: { $in: Array.from(partnerIds) } }).select('name _id');
-    res.json(partners);
+    res.json(previews);
   } catch (err) {
-    console.error('Preview message error:', err);
+    console.error('Error fetching message previews:', err);
     res.status(500).json({ error: 'Failed to load message previews' });
+  }
+});
+
+// Dynamic route for fetching messages by senderId
+router.get('/:senderId', requireAuth, async (req, res) => {
+  try {
+    const { senderId } = req.params;
+
+    // Validate senderId
+    if (!mongoose.Types.ObjectId.isValid(senderId)) {
+      return res.status(400).json({ error: 'Invalid sender ID' });
+    }
+
+    const messages = await Message.find({
+      $or: [
+        { sender: req.user._id, receiver: senderId },
+        { sender: senderId, receiver: req.user._id },
+      ],
+    })
+      .sort({ timestamp: 1 })
+      .populate('sender', 'name')
+      .populate('receiver', 'name')
+      .populate('opportunityId', 'title');
+
+    res.json(messages);
+  } catch (err) {
+    console.error('Error fetching messages:', err);
+    res.status(500).json({ error: 'Server error while retrieving messages' });
+  }
+});
+
+// POST /api/messages
+router.post('/', requireAuth, async (req, res) => {
+  try {
+    const { receiverId, text, opportunityId } = req.body;
+
+    if (req.user.role === 'sponsee') {
+      const existingThread = await Message.findOne({
+        $or: [
+          { sender: receiverId, receiver: req.user._id },
+          { sender: req.user._id, receiver: receiverId },
+        ],
+      });
+
+      if (!existingThread) {
+        return res
+          .status(403)
+          .json({ error: 'You can only message a sponsor who has contacted you first.' });
+      }
+    }
+
+    const message = await Message.create({
+      sender: req.user._id,
+      receiver: receiverId,
+      text,
+      opportunityId,
+      timestamp: new Date(),
+    });
+
+    const io = req.app.get('io');
+    io.to(receiverId).emit('receive-message', message);
+
+    res.status(201).json(message);
+  } catch (err) {
+    console.error('💥 Error sending message:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET /api/messages/conversations
+router.get('/conversations', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const messages = await Message.find({
+      $or: [
+        { sender: userId },
+        { receiver: userId },
+      ],
+    })
+      .populate('sender', 'name')
+      .populate('receiver', 'name')
+      .sort({ timestamp: 1 });
+
+    const conversations = {};
+    messages.forEach((msg) => {
+      const otherUser =
+        msg.sender._id.toString() === userId.toString() ? msg.receiver : msg.sender;
+
+      if (!conversations[otherUser._id]) {
+        conversations[otherUser._id] = {
+          user: otherUser,
+          messages: [],
+        };
+      }
+
+      conversations[otherUser._id].messages.push(msg);
+    });
+
+    res.json(Object.values(conversations));
+  } catch (err) {
+    console.error('❌ Error in /conversations:', err);
+    res.status(500).json({ error: 'Failed to load conversations' });
   }
 });
 
