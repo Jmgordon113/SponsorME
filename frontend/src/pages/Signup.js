@@ -21,7 +21,7 @@ const Signup = () => {
     setError(null);
 
     try {
-      const response = await axios.post('/api/auth/signup', formData);
+      const response = await axios.post('/api/auth/signup', formData); // Correct path
       const { token } = response.data;
 
       if (token) {

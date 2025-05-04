@@ -14,6 +14,7 @@ import Account from './pages/Account';
 // import 'react-toastify/dist/ReactToastify.css'; // disable this temporarily
 import CreateOpportunity from './pages/CreateOpportunity'; // Import CreateOpportunity
 import EditOpportunity from './pages/EditOpportunity'; // Import EditOpportunity
+import OpportunityDetail from './pages/OpportunityDetail';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/create" element={<CreateOpportunity />} /> {/* Add this route */}
           <Route path="/opportunity/edit/:id" element={<EditOpportunity />} /> {/* Add this route */}
+          <Route path="/opportunity/:id" element={<OpportunityDetail />} />
         </Routes>
       </Router>
       {/* <ToastContainer /> */} {/* disable this temporarily */}

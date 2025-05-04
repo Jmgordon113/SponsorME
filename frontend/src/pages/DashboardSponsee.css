@@ -73,6 +73,9 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .metrics {
@@ -138,6 +141,7 @@
 .dashboard-sponsee {
   padding: 2rem;
   color: white;
+  font-family: 'Arial', sans-serif;
 }
 
 h1 {
@@ -184,4 +188,85 @@ h1 {
 
 .cta-button:hover {
   background-color: #5bd5e5;
+}
+
+.opportunity-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.opportunity-card {
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.opportunity-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.opportunity-card p {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #ccc;
+}
+
+.view-btn {
+  padding: 0.5rem 1rem;
+  background: #72E1F0;
+  color: #121212;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.view-btn:hover {
+  background: #5bd5e5;
+}
+
+.opportunity-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.edit-btn {
+  padding: 0.5rem 1rem;
+  background: #72E1F0;
+  color: #121212;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.edit-btn:hover {
+  background: #5bd5e5;
+}
+
+.delete-btn {
+  padding: 0.5rem 1rem;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.delete-btn:hover {
+  background: #ff4c4c;
+}
+
+.error-msg {
+  color: #ff6b6b;
+  font-size: 1rem;
+  margin-top: 1rem;
 }

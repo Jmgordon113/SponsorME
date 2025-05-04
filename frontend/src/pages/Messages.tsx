@@ -1,24 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import axios from '../utils/axiosConfig'; // Use the configured axios instance
+import axios from '../utils/axiosConfig';
 import { io } from 'socket.io-client';
 import './Messages.css';
-import LogoutButton from '../components/LogoutButton';
 
 const socket = io('http://localhost:5001', {
   transports: ['websocket'],
   withCredentials: true,
 });
 
-const Messages = () => {
+interface Message {
+  _id: string;
+  sender: { _id: string; name: string };
+  receiver: { _id: string; name: string };
+  text: string;
+  timestamp: string;
+  opportunityId?: { _id: string; title: string };
+}
+
+interface Conversation {
+  user: { _id: string; name: string };
+  messages: Message[];
+}
+
+const Messages: React.FC = () => {
   const location = useLocation();
   const selectedUserId = location.state?.selectedUserId;
 
-  const [conversations, setConversations] = useState([]);
-  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -26,19 +39,15 @@ const Messages = () => {
       const userId = localStorage.getItem('userId');
 
       if (!token || !userId) {
-        console.warn('Missing token or userId');
         setError('You must be logged in to view conversations.');
         setIsLoading(false);
         return;
       }
 
       try {
-        const res = await axios.get('/api/messages/conversations', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get('/api/messages/conversations');
         setConversations(res.data);
       } catch (err) {
-        console.error('Failed to load conversations:', err);
         setError('Failed to load conversations. Please try again later.');
       } finally {
         setIsLoading(false);
@@ -51,9 +60,7 @@ const Messages = () => {
   useEffect(() => {
     if (selectedUserId && conversations.length > 0) {
       const convo = conversations.find((c) => c.user._id === selectedUserId);
-      if (convo) {
-        setSelectedConversation(convo);
-      }
+      if (convo) setSelectedConversation(convo);
     }
   }, [conversations, selectedUserId]);
 
@@ -61,30 +68,25 @@ const Messages = () => {
     const userId = localStorage.getItem('userId');
     if (userId) {
       socket.emit('join', userId);
-      console.log('🔌 Socket join with userId:', userId);
-    } else {
-      console.warn('⚠️ No userId found in localStorage.');
     }
 
-    socket.on('receive-message', (msg) => {
+    socket.on('receive-message', (msg: Message) => {
       setConversations((prev) =>
         prev.map((conv) =>
-          conv.user._id === msg.sender || conv.user._id === msg.receiver
+          conv.user._id === msg.sender._id || conv.user._id === msg.receiver._id
             ? { ...conv, messages: [...conv.messages, msg] }
             : conv
         )
       );
     });
 
-    return () => socket.disconnect();
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
-  const handleSelectConversation = (conversation) => {
-    setSelectedConversation(conversation);
-  };
-
-  const sendMessage = async () => {
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || !selectedConversation) return;
 
     try {
       const res = await axios.post('/api/messages', {
@@ -92,6 +94,7 @@ const Messages = () => {
         text: inputMessage,
         opportunityId: selectedConversation.messages[0]?.opportunityId?._id || null,
       });
+
       setSelectedConversation({
         ...selectedConversation,
         messages: [...selectedConversation.messages, res.data],
@@ -99,49 +102,29 @@ const Messages = () => {
       setInputMessage('');
       socket.emit('send-message', { receiverId: selectedConversation.user._id, message: res.data });
     } catch (err) {
-      console.error('Failed to send message:', err);
       alert('Failed to send message. Please try again.');
     }
   };
 
-  if (isLoading) {
-    return <p>Loading messages...</p>;
-  }
-
-  if (error) {
-    return <p className="error-msg">{error}</p>;
-  }
+  if (isLoading) return <p>Loading messages...</p>;
+  if (error) return <p className="error-msg">{error}</p>;
 
   return (
     <div className="messages-container">
-      <div className="messages-header-container">
-        <h1>Inbox</h1>
-        <LogoutButton />
-      </div>
       <div className="conversation-list">
         <h3>Conversations</h3>
-        {conversations.length > 0 ? (
-          conversations.map((conversation) => (
-            <div
-              key={conversation.user._id}
-              className={`conversation-item ${
-                selectedConversation?.user._id === conversation.user._id ? 'active' : ''
-              }`}
-              onClick={() => handleSelectConversation(conversation)}
-            >
-              {conversation.user.name}
-              {conversation.messages[0]?.opportunityId && (
-                <p style={{ fontSize: '0.85rem', color: '#555' }}>
-                  Regarding: {conversation.messages[0].opportunityId.title}
-                </p>
-              )}
-            </div>
-          ))
-        ) : (
-          <p>No conversations found.</p>
-        )}
+        {conversations.map((conversation) => (
+          <div
+            key={conversation.user._id}
+            className={`conversation-item ${
+              selectedConversation?.user._id === conversation.user._id ? 'active' : ''
+            }`}
+            onClick={() => setSelectedConversation(conversation)}
+          >
+            {conversation.user.name}
+          </div>
+        ))}
       </div>
-
       <div className="chat-panel">
         {selectedConversation ? (
           <>
@@ -154,18 +137,11 @@ const Messages = () => {
                   }`}
                 >
                   <p>{msg.text}</p>
-                  {msg.opportunityId && (
-                    <p style={{ fontSize: '0.85rem', color: '#555' }}>
-                      Regarding: {msg.opportunityId.title}
-                    </p>
-                  )}
-                  <span className="timestamp">
-                    {new Date(msg.timestamp).toLocaleTimeString()}
-                  </span>
+                  {msg.opportunityId && <p>Regarding: {msg.opportunityId.title}</p>}
+                  <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
                 </div>
               ))}
             </div>
-
             <div className="message-input">
               <input
                 type="text"
@@ -173,7 +149,7 @@ const Messages = () => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
               />
-              <button onClick={sendMessage}>Send</button>
+              <button onClick={handleSendMessage}>Send</button>
             </div>
           </>
         ) : (

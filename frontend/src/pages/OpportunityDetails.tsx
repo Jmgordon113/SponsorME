@@ -3,28 +3,25 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../utils/axiosConfig';
 
 interface SponsorshipLevel {
-  name: string;
+  level: string;
   amount: number;
-  sponsorId?: { name: string }; // Optional field to track sponsorship
+  benefits: string;
 }
 
 interface Opportunity {
   _id: string;
   title: string;
   category: string;
-  tagline: string;
   description: string;
   sponsorshipLevels: SponsorshipLevel[];
-  creator?: { name: string; _id: string }; // Optional if populated on the backend
-  image?: string; // Optional field for opportunity image
+  sponseeId: { _id: string; name: string };
 }
 
 const OpportunityDetails: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOpportunity = async () => {
@@ -32,78 +29,48 @@ const OpportunityDetails: React.FC = () => {
         const res = await axios.get(`/api/opportunities/${id}`);
         setOpportunity(res.data);
       } catch (err) {
-        console.error(err);
-        setError('Failed to load opportunity.');
-      } finally {
-        setLoading(false);
+        console.error('Error fetching opportunity:', err);
+        setError('Failed to load opportunity details.');
       }
     };
 
     fetchOpportunity();
   }, [id]);
 
-  const handleSponsor = async (levelName: string) => {
-    try {
-      await axios.post('/api/sponsorships', {
-        opportunityId: opportunity?._id,
-        sponsorshipLevel: levelName,
-      });
-      alert('Sponsorship successful!');
-      window.location.reload();
-    } catch (err) {
-      console.error(err);
-      alert('Failed to sponsor.');
-    }
-  };
-
-  const handleMessageOrganizer = async () => {
+  const handleSponsorNow = async () => {
     try {
       await axios.post('/api/messages', {
-        receiverId: opportunity?.creator?._id,
-        text: 'Hi! I’m interested in sponsoring your opportunity.',
+        receiverId: opportunity?.sponseeId._id,
+        text: `Hi, I'm interested in sponsoring your opportunity "${opportunity?.title}"`,
         opportunityId: opportunity?._id,
       });
-      navigate('/messages');
+      navigate('/messages', { state: { selectedUserId: opportunity?.sponseeId._id } });
     } catch (err) {
-      console.error('Failed to send message:', err);
-      alert('Failed to send message. Please try again.');
+      console.error('Error sending message:', err);
+      alert('Failed to contact the organizer. Please try again.');
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error || !opportunity) return <div>{error || 'Opportunity not found.'}</div>;
+  if (error) return <p className="error-msg">{error}</p>;
+  if (!opportunity) return <p>Loading...</p>;
 
   return (
-    <div style={{ padding: '2rem' }}>
-      {opportunity.image && (
-        <img
-          src={opportunity.image}
-          alt="Opportunity"
-          style={{ width: '100%', maxHeight: '300px', objectFit: 'cover', marginBottom: '1rem' }}
-        />
-      )}
-      <h2>{opportunity.title}</h2>
-      <h4>{opportunity.category} - {opportunity.tagline}</h4>
+    <div className="opportunity-detail-container">
+      <h1>{opportunity.title}</h1>
+      <p><strong>Category:</strong> {opportunity.category}</p>
+      <p><strong>Organized by:</strong> {opportunity.sponseeId.name}</p>
       <p>{opportunity.description}</p>
 
       <h3>Sponsorship Levels</h3>
       <ul>
         {opportunity.sponsorshipLevels.map((level, index) => (
           <li key={index}>
-            {level.name}: ${level.amount}
-            {level.sponsorId ? (
-              <span>Sponsored by {level.sponsorId.name}</span>
-            ) : (
-              <button onClick={() => handleSponsor(level.name)}>Sponsor This Level</button>
-            )}
+            <strong>{level.level}</strong>: ${level.amount} – {level.benefits}
           </li>
         ))}
       </ul>
 
-      {opportunity.creator && (
-        <p>Organized by: {opportunity.creator.name}</p>
-      )}
-      <button onClick={handleMessageOrganizer}>Message about this opportunity</button>
+      <button onClick={handleSponsorNow}>Sponsor Now</button>
     </div>
   );
 };
