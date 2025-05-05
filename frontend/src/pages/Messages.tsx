@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from '../utils/axiosConfig';
 import { io } from 'socket.io-client';
 import './Messages.css';
@@ -24,9 +24,7 @@ interface Conversation {
 }
 
 const Messages: React.FC = () => {
-  const location = useLocation();
-  const selectedUserId = location.state?.selectedUserId;
-
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [inputMessage, setInputMessage] = useState('');
@@ -34,18 +32,20 @@ const Messages: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    if (!token || !userId) {
+      setError('You must be logged in to view messages.');
+      setIsLoading(false);
+      return;
+    }
+
     const fetchConversations = async () => {
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
-
-      if (!token || !userId) {
-        setError('You must be logged in to view conversations.');
-        setIsLoading(false);
-        return;
-      }
-
       try {
-        const res = await axios.get('/api/messages/conversations');
+        const res = await axios.get('/api/messages/conversations', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setConversations(res.data);
       } catch (err) {
         setError('Failed to load conversations. Please try again later.');
@@ -55,21 +55,8 @@ const Messages: React.FC = () => {
     };
 
     fetchConversations();
-  }, []);
 
-  useEffect(() => {
-    if (selectedUserId && conversations.length > 0) {
-      const convo = conversations.find((c) => c.user._id === selectedUserId);
-      if (convo) setSelectedConversation(convo);
-    }
-  }, [conversations, selectedUserId]);
-
-  useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      socket.emit('join', userId);
-    }
-
+    socket.emit('join', userId);
     socket.on('receive-message', (msg: Message) => {
       setConversations((prev) =>
         prev.map((conv) =>
@@ -89,11 +76,16 @@ const Messages: React.FC = () => {
     if (!inputMessage.trim() || !selectedConversation) return;
 
     try {
-      const res = await axios.post('/api/messages', {
-        receiverId: selectedConversation.user._id,
-        text: inputMessage,
-        opportunityId: selectedConversation.messages[0]?.opportunityId?._id || null,
-      });
+      const token = localStorage.getItem('token');
+      const res = await axios.post(
+        '/api/messages',
+        {
+          receiverId: selectedConversation.user._id,
+          text: inputMessage,
+          opportunityId: selectedConversation.messages[0]?.opportunityId?._id || null,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       setSelectedConversation({
         ...selectedConversation,
@@ -113,17 +105,21 @@ const Messages: React.FC = () => {
     <div className="messages-container">
       <div className="conversation-list">
         <h3>Conversations</h3>
-        {conversations.map((conversation) => (
-          <div
-            key={conversation.user._id}
-            className={`conversation-item ${
-              selectedConversation?.user._id === conversation.user._id ? 'active' : ''
-            }`}
-            onClick={() => setSelectedConversation(conversation)}
-          >
-            {conversation.user.name}
-          </div>
-        ))}
+        {conversations.length > 0 ? (
+          conversations.map((conversation) => (
+            <div
+              key={conversation.user._id}
+              className={`conversation-item ${
+                selectedConversation?.user._id === conversation.user._id ? 'active' : ''
+              }`}
+              onClick={() => setSelectedConversation(conversation)}
+            >
+              {conversation.user.name}
+            </div>
+          ))
+        ) : (
+          <p>No conversations yet.</p>
+        )}
       </div>
       <div className="chat-panel">
         {selectedConversation ? (

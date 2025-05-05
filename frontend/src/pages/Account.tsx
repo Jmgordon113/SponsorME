@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
 import LogoutButton from '../components/LogoutButton';
-import { toast } from 'react-toastify';
 import './Account.css';
 
 interface UserProfile {
@@ -20,12 +19,14 @@ const Account: React.FC = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const { data } = await axios.get('/api/users/me');
+        const token = localStorage.getItem('token');
+        const { data } = await axios.get('/api/users/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setUser({ name: data.name, email: data.email, role: data.role });
       } catch (err) {
         console.error('Failed to fetch user profile:', err);
         setError('Failed to load user info');
-        toast.error('Failed to load user info');
       }
     };
 
@@ -40,10 +41,10 @@ const Account: React.FC = () => {
     setLoading(true);
     try {
       await axios.put('/api/users/me', { ...user, password });
-      toast.success('✅ Profile updated successfully!');
+      alert('Profile updated successfully!');
     } catch (err) {
       console.error('Failed to update profile:', err);
-      toast.error('❌ Failed to update profile.');
+      alert('Failed to update profile.');
     } finally {
       setLoading(false);
       setShowConfirm(false);

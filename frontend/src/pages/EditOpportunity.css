@@ -1,0 +1,52 @@
+.edit-opportunity-container {
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
+  color: #ffffff;
+}
+
+.edit-opportunity-container h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #72E1F0;
+}
+
+.edit-opportunity-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.edit-opportunity-container label {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.edit-opportunity-container input,
+.edit-opportunity-container textarea {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background: #222;
+  color: white;
+}
+
+.edit-opportunity-container button {
+  padding: 0.5rem 1rem;
+  background: #72E1F0;
+  color: #121212;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.edit-opportunity-container button:hover {
+  background: #5bd5e5;
+}
+
+.error-msg {
+  color: #ff6b6b;
+  font-size: 1rem;
+  margin-top: 1rem;
+}

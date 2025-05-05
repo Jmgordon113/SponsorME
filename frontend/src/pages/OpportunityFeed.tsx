@@ -3,15 +3,24 @@ import { Link } from 'react-router-dom';
 import axios from '../utils/axiosConfig';
 import './OpportunityFeed.css';
 
-const OpportunityFeed = () => {
-  const [opportunities, setOpportunities] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+// Define the Opportunity interface
+interface Opportunity {
+  _id: string;
+  title: string;
+  category: string;
+  description: string;
+  image?: string; // Optional field
+}
+
+const OpportunityFeed: React.FC = () => {
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([]); // Typed state
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null); // Explicit typing
 
   useEffect(() => {
     const fetchOpportunities = async () => {
       try {
-        const res = await axios.get('/api/opportunities');
+        const res = await axios.get<Opportunity[]>('/api/opportunities'); // Typed API response
         setOpportunities(res.data || []);
       } catch (err) {
         console.error('Error fetching opportunities:', err);
@@ -29,7 +38,7 @@ const OpportunityFeed = () => {
       <h1 className="feed-header">Available Sponsorship Opportunities</h1>
 
       {isLoading ? (
-        <p>Loading opportunities...</p>
+        <p>Loading opportunities...</p> // Placeholder for loading
       ) : error ? (
         <p className="error-msg">{error}</p>
       ) : opportunities.length > 0 ? (
@@ -41,7 +50,7 @@ const OpportunityFeed = () => {
                   <img
                     src={opp.image}
                     alt="Opportunity Thumbnail"
-                    style={{ width: '120px', height: '80px', objectFit: 'cover' }}
+                    className="opp-thumbnail" // Moved styles to CSS
                   />
                 )}
                 <h3>{opp.title}</h3>

@@ -75,3 +75,9 @@
   font-size: 1rem;
   margin-top: 1rem;
 }
+
+.opp-thumbnail {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+}

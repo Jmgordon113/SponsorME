@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import axios from '../utils/axiosConfig'; // Use the configured axios instance
 
+interface SponsorshipLevel {
+  name: string;
+  amount: string;
+}
+
 const PostOpportunity: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -10,16 +15,21 @@ const PostOpportunity: React.FC = () => {
     sponsorshipLevels: [{ name: '', amount: '' }],
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index?: number) => {
-    const { name, value } = e.target;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    index: number,
+    field: keyof SponsorshipLevel
+  ) => {
+    const levels = [...formData.sponsorshipLevels];
+    levels[index][field] = e.target.value as string; // Ensure type safety
+    setFormData({ ...formData, sponsorshipLevels: levels });
+  };
 
-    if (name.startsWith('sponsorshipLevels') && index !== undefined) {
-      const levels = [...formData.sponsorshipLevels];
-      levels[index][name.split('.')[1]] = value;
-      setFormData({ ...formData, sponsorshipLevels: levels });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+  const handleFieldChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleAddLevel = () => {
@@ -56,39 +66,37 @@ const PostOpportunity: React.FC = () => {
 
   return (
     <div style={{ padding: '2rem' }}>
-      <h2>Post a New Opportunity</h2>
+          // Removed misplaced onChange handler
       <form onSubmit={handleSubmit}>
         <input
           name="title"
           placeholder="Title"
           value={formData.title}
-          onChange={handleChange}
+          onChange={handleFieldChange}
           required
-        /><br /><br />
-
+        />
         <input
           name="category"
           placeholder="Category"
           value={formData.category}
-          onChange={handleChange}
+          onChange={handleFieldChange}
           required
-        /><br /><br />
-
+        />
         <input
           name="tagline"
           placeholder="Tagline"
           value={formData.tagline}
-          onChange={handleChange}
+          onChange={handleFieldChange}
           required
-        /><br /><br />
-
+        />
         <textarea
           name="description"
           placeholder="Description"
           value={formData.description}
-          onChange={handleChange}
+          onChange={handleFieldChange}
           required
-        /><br /><br />
+        ></textarea>
+        <br /><br />
 
         <h4>Sponsorship Levels</h4>
         {formData.sponsorshipLevels.map((level, index) => (
@@ -97,14 +105,14 @@ const PostOpportunity: React.FC = () => {
               name="sponsorshipLevels.name"
               placeholder="Level Name (e.g., Bronze)"
               value={level.name}
-              onChange={(e) => handleChange(e, index)}
+              onChange={(e) => handleChange(e, index, 'name')}
               required
             />
             <input
               name="sponsorshipLevels.amount"
               placeholder="Amount"
               value={level.amount}
-              onChange={(e) => handleChange(e, index)}
+              onChange={(e) => handleChange(e, index, 'amount')}
               required
             />
             <br /><br />

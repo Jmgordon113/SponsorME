@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
-import './DashboardSponsor.css';
+import './DashboardSponsee.css';
 import { useNavigate } from 'react-router-dom';
 import OpportunityList from '../components/OpportunityList';
-import MessagePreview from '../components/MessagePreview';
-import LogoutButton from '../components/LogoutButton'; // Import LogoutButton
+import LogoutButton from '../components/LogoutButton';
 
-const DashboardSponsor = () => {
-  const [userName, setUserName] = useState('Sponsor');
-  const [sponsoredOpps, setSponsoredOpps] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [totalSponsored, setTotalSponsored] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState({ opportunities: '', messages: '', totals: '' });
+const DashboardSponsee: React.FC = () => {
+  const [userName, setUserName] = useState<string>('Sponsee');
+  const [opportunities, setOpportunities] = useState<any[]>([]);
+  const [totalSponsored, setTotalSponsored] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<{ opportunities: string; totals: string }>({
+    opportunities: '',
+    totals: '',
+  });
 
   const navigate = useNavigate();
 
@@ -23,24 +24,17 @@ const DashboardSponsor = () => {
         if (!token) return navigate('/login');
 
         const decoded = JSON.parse(atob(token.split('.')[1]));
-        setUserName(decoded.name || 'Sponsor');
+        setUserName(decoded.name || 'Sponsee');
 
-        const [oppRes, msgRes, totalRes] = await Promise.allSettled([
-          axios.get('/api/opportunities/sponsorships/mine', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('/api/messages/preview', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('/api/sponsorships/totals', { headers: { Authorization: `Bearer ${token}` } }),
+        const [oppRes, totalRes] = await Promise.allSettled([
+          axios.get('/api/opportunities/mine'),
+          axios.get('/api/sponsorships/totals'),
         ]);
 
         if (oppRes.status === 'fulfilled') {
-          setSponsoredOpps(oppRes.value.data || []);
+          setOpportunities(oppRes.value.data || []);
         } else {
           setError((prev) => ({ ...prev, opportunities: 'Could not load opportunities. Try again later.' }));
-        }
-
-        if (msgRes.status === 'fulfilled') {
-          setMessages(msgRes.value.data || []);
-        } else {
-          setError((prev) => ({ ...prev, messages: 'Could not load messages. Try again later.' }));
         }
 
         if (totalRes.status === 'fulfilled') {
@@ -62,20 +56,20 @@ const DashboardSponsor = () => {
     <div className="dashboard-container">
       <aside className="sidebar">
         <div className="logo">
-          <span className="sponsor">Sponsor</span><span className="me">Me</span>
+          <span className="sponsor">Sponsor</span>
+          <span className="me">Me</span>
         </div>
         <nav>
           <a className="active">Dashboard</a>
-          <a href="/feed">Opportunities</a>
-          <a href="/messages">Messages</a>
+          <a href="/create">Create Opportunity</a>
           <a href="/account">Manage</a>
         </nav>
       </aside>
 
       <main className="main">
         <div className="dashboard-header-container">
-          <h1 className="dashboard-header">Sponsor Dashboard | Welcome, {userName}</h1>
-          <LogoutButton /> {/* Add LogoutButton */}
+          <h1 className="dashboard-header">Sponsee Dashboard | Welcome, {userName}</h1>
+          <LogoutButton />
         </div>
 
         {isLoading ? (
@@ -89,23 +83,18 @@ const DashboardSponsor = () => {
                 {error.totals && <p className="error-message">{error.totals}</p>}
               </div>
               <div className="card">
-                <h2>Opportunities Sponsored</h2>
-                <p>📋 {sponsoredOpps.length}</p>
+                <h2>Active Opportunities</h2>
+                <p>📋 {opportunities.length}</p>
                 {error.opportunities && <p className="error-message">{error.opportunities}</p>}
               </div>
             </div>
 
             <div className="section">
-              <h3>Opportunities</h3>
-              <OpportunityList opportunities={sponsoredOpps} error={error.opportunities} isSponsor={true} />
-              <button className="cta-button" onClick={() => navigate('/feed')}>
-                Browse More Opportunities
+              <h3>Your Opportunities</h3>
+              <OpportunityList opportunities={opportunities} error={error.opportunities} isSponsor={false} />
+              <button className="cta-button" onClick={() => navigate('/create')}>
+                Create New Opportunity
               </button>
-            </div>
-
-            <div className="section">
-              <h3>Messages</h3>
-              <MessagePreview messages={messages} error={error.messages} />
             </div>
           </>
         )}
@@ -114,4 +103,4 @@ const DashboardSponsor = () => {
   );
 };
 
-export default DashboardSponsor;
+export default DashboardSponsee;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../utils/axiosConfig';
+import './OpportunityDetail.css'; // Ensure CSS is included
 
 interface SponsorshipLevel {
   level: string;
@@ -17,7 +18,7 @@ interface Opportunity {
   sponseeId: { _id: string; name: string };
 }
 
-const OpportunityDetails: React.FC = () => {
+const OpportunityDetail: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
@@ -75,4 +76,4 @@ const OpportunityDetails: React.FC = () => {
   );
 };
 
-export default OpportunityDetails;
+export default OpportunityDetail;
