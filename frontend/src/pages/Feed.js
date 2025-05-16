@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../utils/axiosConfig';
+import API from '../utils/axiosConfig'; // Use the configured Axios instance
 
 const Feed = () => {
   const [opportunities, setOpportunities] = useState([]);
@@ -9,7 +9,7 @@ const Feed = () => {
   useEffect(() => {
     const fetchOpportunities = async () => {
       try {
-        const res = await axios.get('/api/opportunities');
+        const res = await API.get('/api/opportunities'); // Use API instance
         setOpportunities(res.data);
       } catch (err) {
         console.error('Error fetching opportunities:', err);

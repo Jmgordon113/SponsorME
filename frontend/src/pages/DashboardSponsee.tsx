@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
 import './DashboardSponsee.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import OpportunityList from '../components/OpportunityList';
 import LogoutButton from '../components/LogoutButton';
 
@@ -60,9 +60,9 @@ const DashboardSponsee: React.FC = () => {
           <span className="me">Me</span>
         </div>
         <nav>
-          <a className="active">Dashboard</a>
-          <a href="/create">Create Opportunity</a>
-          <a href="/account">Manage</a>
+          <Link className="active" to="/dashboard-sponsee">Dashboard</Link>
+          <Link to="/create">Create Opportunity</Link>
+          <Link to="/account">Manage</Link>
         </nav>
       </aside>
 

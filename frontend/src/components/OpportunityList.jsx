@@ -22,7 +22,11 @@ const OpportunityList = ({ opportunities, error, isSponsor }) => {
           </div>
           <button
             className="button"
-            onClick={() => navigate(isSponsor ? `/opportunity/${opp._id}` : `/dashboard-sponsee`)}
+            onClick={() =>
+              isSponsor
+                ? navigate(`/opportunity/${opp._id}`)
+                : navigate(`/opportunity/edit/${opp._id}`)
+            }
           >
             {isSponsor ? 'View' : 'Manage'}
           </button>

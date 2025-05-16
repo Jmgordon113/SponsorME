@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from '../utils/axiosConfig';
+import API from '../utils/axiosConfig'; // Use the configured Axios instance
+import './OpportunityFeed.css';
 
 interface Opportunity {
   _id: string;
@@ -12,13 +13,13 @@ interface Opportunity {
 
 const OpportunityFeed: React.FC = () => {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOpportunities = async () => {
       try {
-        const res = await axios.get('/api/opportunities');
+        const res = await API.get('/api/opportunities'); // Use API instance
         setOpportunities(res.data || []);
       } catch (err) {
         console.error('Error fetching opportunities:', err);
@@ -45,7 +46,7 @@ const OpportunityFeed: React.FC = () => {
                 <img
                   src={opp.image}
                   alt="Opportunity Thumbnail"
-                  style={{ width: '120px', height: '80px', objectFit: 'cover' }}
+                  className="opp-thumbnail"
                 />
               )}
               <h3>{opp.title}</h3>

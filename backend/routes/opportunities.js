@@ -105,31 +105,29 @@ router.delete('/:id', requireAuth, async (req, res) => {
 
 // GET /api/opportunities/mine
 router.get('/mine', requireAuth, async (req, res) => {
+  if (req.user.role !== 'sponsee') {
+    return res.status(403).json({ error: 'Only sponsees can view their opportunities.' });
+  }
   try {
-    const opportunities = await Opportunity.find({ sponseeId: req.user._id })
-      .sort({ createdAt: -1 });
+    const opportunities = await Opportunity.find({ sponseeId: req.user._id }).sort({ createdAt: -1 });
     res.json(opportunities);
   } catch (err) {
-    console.error('Error fetching user opportunities:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching your opportunities.' });
   }
 });
 
-// GET /api/opportunities/sponsorships/mine
 router.get('/sponsorships/mine', requireAuth, async (req, res) => {
+  if (req.user.role !== 'sponsor') {
+    return res.status(403).json({ error: 'Only sponsors can access this route.' });
+  }
   try {
-    if (req.user.role !== 'sponsor') {
-      return res.status(403).json({ error: 'Only sponsors can view this' });
-    }
-
-    const opportunities = await Opportunity.find({
-      'sponsorshipLevels.sponsorId': req.user._id,
-    }).populate('creator', 'name');
-
-    res.json(opportunities);
+    const sponsorships = await Sponsorship.find({ sponsor: req.user._id }).populate('opportunity');
+    const sponsoredOpportunities = sponsorships.map(s => s.opportunity);
+    res.json(sponsoredOpportunities);
   } catch (err) {
-    console.error('Error fetching sponsored opportunities:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error(err);
+    res.status(500).json({ error: 'Error fetching sponsored opportunities.' });
   }
 });
 

@@ -1,77 +1,87 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../utils/axiosConfig';
-import './OpportunityDetail.css'; // Ensure CSS is included
-
-interface SponsorshipLevel {
-  level: string;
-  amount: number;
-  benefits: string;
-}
 
 interface Opportunity {
   _id: string;
   title: string;
-  category: string;
   description: string;
-  sponsorshipLevels: SponsorshipLevel[];
-  sponseeId: { _id: string; name: string };
+  sponsorshipLevels: { name: string; amount: number }[];
+  creator: { _id: string; name: string };
 }
 
 const OpportunityDetail: React.FC = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState('');
+  const [note, setNote] = useState('');
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchOpportunity = async () => {
-      try {
-        const res = await axios.get(`/api/opportunities/${id}`);
+    if (id) {
+      axios.get(`/api/opportunities/${id}`).then((res) => {
         setOpportunity(res.data);
-      } catch (err) {
-        console.error('Error fetching opportunity:', err);
-        setError('Failed to load opportunity details.');
-      }
-    };
-
-    fetchOpportunity();
+      }).catch((err) => console.error('Failed to load opportunity', err));
+    }
   }, [id]);
 
-  const handleSponsorNow = async () => {
-    try {
-      await axios.post('/api/messages', {
-        receiverId: opportunity?.sponseeId._id,
-        text: `Hi, I'm interested in sponsoring your opportunity "${opportunity?.title}"`,
-        opportunityId: opportunity?._id,
-      });
-      navigate('/messages', { state: { selectedUserId: opportunity?.sponseeId._id } });
-    } catch (err) {
-      console.error('Error sending message:', err);
-      alert('Failed to contact the organizer. Please try again.');
-    }
+  const handleSponsorSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!opportunity) return;
+    const amount = opportunity.sponsorshipLevels.find(l => l.name === selectedLevel)?.amount;
+    await axios.post('/api/sponsorships', {
+      opportunityId: opportunity._id,
+      level: selectedLevel,
+      amount,
+      message: note,
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    alert('Sponsorship confirmed!');
   };
 
-  if (error) return <p className="error-msg">{error}</p>;
+  const handleSponsorNow = async () => {
+    if (!opportunity) return;
+    await axios.post('/api/messages', {
+      receiverId: opportunity.creator._id,
+      text: `Hi, I'm interested in sponsoring "${opportunity.title}".`,
+      opportunityId: opportunity._id,
+    }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    navigate('/messages', { state: { selectedUserId: opportunity.creator._id } });
+  };
+
   if (!opportunity) return <p>Loading...</p>;
 
   return (
-    <div className="opportunity-detail-container">
-      <h1>{opportunity.title}</h1>
-      <p><strong>Category:</strong> {opportunity.category}</p>
-      <p><strong>Organized by:</strong> {opportunity.sponseeId.name}</p>
+    <div>
+      <h2>{opportunity.title}</h2>
       <p>{opportunity.description}</p>
+      <p><strong>Organizer:</strong> {opportunity.creator.name}</p>
 
-      <h3>Sponsorship Levels</h3>
-      <ul>
-        {opportunity.sponsorshipLevels.map((level, index) => (
-          <li key={index}>
-            <strong>{level.level}</strong>: ${level.amount} – {level.benefits}
-          </li>
-        ))}
-      </ul>
-
-      <button onClick={handleSponsorNow}>Sponsor Now</button>
+      {role === 'sponsor' && (
+        <>
+          <form onSubmit={handleSponsorSubmit}>
+            <label>Select Level:</label>
+            <select value={selectedLevel} onChange={(e) => setSelectedLevel(e.target.value)}>
+              {opportunity.sponsorshipLevels.map((level, idx) => (
+                <option key={idx} value={level.name}>{level.name} - ${level.amount}</option>
+              ))}
+            </select>
+            <input
+              type="text"
+              placeholder="Message"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+            <button type="submit">Confirm Sponsorship</button>
+          </form>
+          <button onClick={handleSponsorNow}>Sponsor Now</button>
+        </>
+      )}
     </div>
   );
 };

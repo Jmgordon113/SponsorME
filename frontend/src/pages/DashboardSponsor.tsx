@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
 import './DashboardSponsor.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import OpportunityList from '../components/OpportunityList';
 import MessagePreview from '../components/MessagePreview';
 import LogoutButton from '../components/LogoutButton';
@@ -70,10 +70,10 @@ const DashboardSponsor: React.FC = () => {
           <span className="me">Me</span>
         </div>
         <nav>
-          <a className="active">Dashboard</a>
-          <a href="/feed">Opportunities</a>
-          <a href="/messages">Messages</a>
-          <a href="/account">Manage</a>
+          <Link className="active" to="/dashboard-sponsor">Dashboard</Link>
+          <Link to="/feed">Opportunities</Link>
+          <Link to="/messages">Messages</Link>
+          <Link to="/account">Manage</Link>
         </nav>
       </aside>
 
