@@ -1,0 +1,29 @@
+{
+  "name": "sponsorme",
+  "version": "1.0.0",
+  "description": "A platform to connect sponsors with sponsees.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "ts-node-dev --respawn --transpile-only server/app.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.3",
+    "react-router-dom": "^6.30.0",
+    "socket.io": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.18",
+    "@types/react-router-dom": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.9.5"
+  }
+}

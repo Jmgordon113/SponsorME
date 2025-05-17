@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
-import LogoutButton from '../components/LogoutButton';
+import LogoutButton from '../components/LogoutButton'; // ✅ Make sure this is LogoutButton.tsx
 import './Account.css';
 
 interface UserProfile {
@@ -20,9 +20,12 @@ const Account: React.FC = () => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) throw new Error('No token found');
+
         const { data } = await axios.get('/api/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setUser({ name: data.name, email: data.email, role: data.role });
       } catch (err) {
         console.error('Failed to fetch user profile:', err);
@@ -58,7 +61,7 @@ const Account: React.FC = () => {
     <div className="account-page">
       <div className="account-header-container">
         <h1>Account Settings</h1>
-        <LogoutButton />
+        <LogoutButton /> {/* ✅ Ensure this is coming from a valid LogoutButton.tsx */}
       </div>
 
       <form>

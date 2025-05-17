@@ -45,6 +45,14 @@ router.post('/', requireAuth, async (req, res) => {
 
     await sponsorship.save();
 
+    // Mark the claimed sponsorship level in Opportunity
+    const opp = await Opportunity.findById(opportunityId);
+    if (opp) {
+      const levelEntry = opp.sponsorshipLevels.find(l => l.level === level && !l.sponsorId);
+      if (levelEntry) levelEntry.sponsorId = req.user._id;
+      await opp.save();
+    }
+
     console.log('Sponsorship created:', sponsorship); // Debug log
     res.status(201).json({ message: 'Sponsorship created', sponsorship });
   } catch (err) {
@@ -61,7 +69,7 @@ router.get('/totals', requireAuth, async (req, res) => {
 
     if (role === 'sponsee') {
       // Sponsee: show total raised across their own opportunities
-      const opportunities = await Opportunity.find({ creator: userId }).select('_id');
+      const opportunities = await Opportunity.find({ sponseeId: userId }).select('_id');
       const opportunityIds = opportunities.map((opp) => opp._id);
 
       const total = await Sponsorship.aggregate([

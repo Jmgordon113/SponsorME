@@ -31,7 +31,7 @@ router.post('/', requireAuth, async (req, res) => {
       tagline,
       description,
       sponsorshipLevels,
-      creator: req.user._id
+      sponseeId: req.user._id
     });
 
     res.status(201).json({ message: 'Opportunity created', opportunity });
@@ -48,12 +48,8 @@ router.get('/sponsorships/mine', requireAuth, async (req, res) => {
     if (req.user.role !== 'sponsor') {
       return res.status(403).json({ error: 'Only sponsors can view their sponsored opportunities' });
     }
-
-    // Filter for opportunities where the logged-in sponsor has already sponsored a level
-    const sponsored = await Opportunity.find({
-      'sponsorshipLevels.sponsorId': req.user._id
-    });
-
+    // Find opportunities where any sponsorshipLevel is claimed by this sponsor
+    const sponsored = await Opportunity.find({ 'sponsorshipLevels.sponsorId': req.user._id });
     res.status(200).json(sponsored);
   } catch (err) {
     console.error('❌ Error fetching sponsored opportunities:', err);
@@ -66,12 +62,9 @@ router.get('/sponsorships/mine', requireAuth, async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const opportunity = await Opportunity.findById(req.params.id).populate('creator', 'name');
-
     if (!opportunity) {
       return res.status(404).json({ error: 'Opportunity not found' });
     }
-
-    // Return opportunity details + organizer name
     res.status(200).json({
       ...opportunity._doc,
       organizer: opportunity.creator.name

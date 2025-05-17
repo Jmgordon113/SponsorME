@@ -66,6 +66,7 @@ router.post('/', requireAuth, async (req, res) => {
   try {
     const { receiverId, text, opportunityId } = req.body;
 
+    // Only allow sponsee to reply if a thread exists
     if (req.user.role === 'sponsee') {
       const existingThread = await Message.findOne({
         $or: [
@@ -78,6 +79,19 @@ router.post('/', requireAuth, async (req, res) => {
         return res
           .status(403)
           .json({ error: 'You can only message a sponsor who has contacted you first.' });
+      }
+    }
+
+    // Only sponsors can send the first message
+    if (req.user.role !== 'sponsor') {
+      const existingThread = await Message.findOne({
+        $or: [
+          { sender: receiverId, receiver: req.user._id },
+          { sender: req.user._id, receiver: receiverId },
+        ],
+      });
+      if (!existingThread) {
+        return res.status(403).json({ error: 'Only sponsors can send the first message.' });
       }
     }
 

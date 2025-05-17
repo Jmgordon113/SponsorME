@@ -1,7 +1,15 @@
 import React from 'react';
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+type ErrorBoundaryProps = {
+  children: React.ReactNode;
+};
+
+type ErrorBoundaryState = {
+  hasError: boolean;
+};
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
@@ -10,7 +18,7 @@ class ErrorBoundary extends React.Component {
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: any, errorInfo: any) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
@@ -18,7 +26,6 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return <h1>Something went wrong. Please try again later.</h1>;
     }
-
     return this.props.children;
   }
 }

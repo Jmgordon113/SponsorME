@@ -8,6 +8,7 @@ interface Opportunity {
   title: string;
   category: string;
   description: string;
+  sponsorshipLevels: { level: string; amount: number; benefits: string }[];
   image?: string;
 }
 

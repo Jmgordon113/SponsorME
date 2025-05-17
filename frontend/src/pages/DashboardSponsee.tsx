@@ -5,9 +5,17 @@ import { useNavigate, Link } from 'react-router-dom';
 import OpportunityList from '../components/OpportunityList';
 import LogoutButton from '../components/LogoutButton';
 
+interface Opportunity {
+  _id: string;
+  title: string;
+  description: string;
+  value: number;
+  [key: string]: any;
+}
+
 const DashboardSponsee: React.FC = () => {
   const [userName, setUserName] = useState<string>('Sponsee');
-  const [opportunities, setOpportunities] = useState<any[]>([]);
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [totalSponsored, setTotalSponsored] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<{ opportunities: string; totals: string }>({
@@ -23,8 +31,8 @@ const DashboardSponsee: React.FC = () => {
         const token = localStorage.getItem('token');
         if (!token) return navigate('/login');
 
-        const decoded = JSON.parse(atob(token.split('.')[1]));
-        setUserName(decoded.name || 'Sponsee');
+        const storedName = localStorage.getItem('name');
+        setUserName(storedName || 'Sponsee');
 
         const [oppRes, totalRes] = await Promise.allSettled([
           axios.get('/api/opportunities/mine'),
@@ -34,13 +42,19 @@ const DashboardSponsee: React.FC = () => {
         if (oppRes.status === 'fulfilled') {
           setOpportunities(oppRes.value.data || []);
         } else {
-          setError((prev) => ({ ...prev, opportunities: 'Could not load opportunities. Try again later.' }));
+          setError((prev) => ({
+            ...prev,
+            opportunities: 'Could not load opportunities. Try again later.',
+          }));
         }
 
         if (totalRes.status === 'fulfilled') {
           setTotalSponsored(totalRes.value.data?.total || 0);
         } else {
-          setError((prev) => ({ ...prev, totals: 'Could not load sponsorship totals. Try again later.' }));
+          setError((prev) => ({
+            ...prev,
+            totals: 'Could not load sponsorship totals. Try again later.',
+          }));
         }
       } catch (err) {
         console.error('Dashboard error:', err);
@@ -91,7 +105,11 @@ const DashboardSponsee: React.FC = () => {
 
             <div className="section">
               <h3>Your Opportunities</h3>
-              <OpportunityList opportunities={opportunities} error={error.opportunities} isSponsor={false} />
+              <OpportunityList
+                opportunities={opportunities}
+                error={error.opportunities}
+                isSponsor={false}
+              />
               <button className="cta-button" onClick={() => navigate('/create')}>
                 Create New Opportunity
               </button>

@@ -1,12 +1,18 @@
 import React, { useEffect } from 'react';
 
-function AppleLoginButton() {
+declare global {
+  interface Window {
+    AppleID?: any;
+  }
+}
+
+const AppleLoginButton: React.FC = () => {
   useEffect(() => {
     if (window.AppleID) {
       window.AppleID.auth.init({
-        clientId: 'com.example.sponsorme', // Replace with your Apple Developer client ID
+        clientId: 'com.example.sponsorme',
         scope: 'name email',
-        redirectURI: 'http://localhost:3000', // Replace with your redirect URI
+        redirectURI: 'http://localhost:3000',
         usePopup: true,
       });
     }
@@ -14,9 +20,7 @@ function AppleLoginButton() {
 
   const handleAppleLogin = () => {
     if (window.AppleID) {
-      window.AppleID.auth.signIn().then((response) => {
-        console.log('Apple login success:', response);
-        // Send the response to the backend for token verification
+      window.AppleID.auth.signIn().then((response: any) => {
         fetch('/api/auth/apple-login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -33,8 +37,7 @@ function AppleLoginButton() {
             }
           })
           .catch((err) => console.error('Apple login error:', err));
-      }).catch((error) => {
-        console.error('Apple login failed:', error);
+      }).catch((error: any) => {
         alert('Apple login failed. Please try again.');
       });
     } else {
@@ -47,6 +50,6 @@ function AppleLoginButton() {
       Sign in with Apple
     </button>
   );
-}
+};
 
 export default AppleLoginButton;

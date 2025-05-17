@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 // import ToastContainer from './components/ToastContainer'; // disable this temporarily
-import Home from './pages/Home';
+import Home from './pages/Home'; // Ensure the './pages/Home' file is correctly typed or has a declaration file
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import DashboardSponsor from './pages/DashboardSponsor';
@@ -41,4 +41,4 @@ function App() {
   );
 }
 
-export default App; // Ensure this line exists
+export default App;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from '../utils/axiosConfig';
+import API from '../utils/axiosConfig';
 import './OpportunityFeed.css';
 
 // Define the Opportunity interface
@@ -9,6 +9,7 @@ interface Opportunity {
   title: string;
   category: string;
   description: string;
+  sponsorshipLevels: { level: string; amount: number; benefits: string }[];
   image?: string; // Optional field
 }
 
@@ -16,11 +17,14 @@ const OpportunityFeed: React.FC = () => {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]); // Typed state
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null); // Explicit typing
+  const [category, setCategory] = useState('');
+  const [minAmount, setMinAmount] = useState('');
+  const [maxAmount, setMaxAmount] = useState('');
 
   useEffect(() => {
     const fetchOpportunities = async () => {
       try {
-        const res = await axios.get<Opportunity[]>('/api/opportunities'); // Typed API response
+        const res = await API.get<Opportunity[]>('/api/opportunities'); // Typed API response
         setOpportunities(res.data || []);
       } catch (err) {
         console.error('Error fetching opportunities:', err);
@@ -33,17 +37,53 @@ const OpportunityFeed: React.FC = () => {
     fetchOpportunities();
   }, []);
 
+  // Filtering logic
+  const filtered = opportunities.filter((opp) => {
+    let pass = true;
+    if (category && opp.category !== category) pass = false;
+    if (minAmount) {
+      const min = parseFloat(minAmount);
+      if (!opp.sponsorshipLevels.some(l => l.amount >= min)) pass = false;
+    }
+    if (maxAmount) {
+      const max = parseFloat(maxAmount);
+      if (!opp.sponsorshipLevels.some(l => l.amount <= max)) pass = false;
+    }
+    return pass;
+  });
+
   return (
     <div className="opportunity-feed-container">
       <h1 className="feed-header">Available Sponsorship Opportunities</h1>
-
+      <div style={{ marginBottom: '1rem' }}>
+        <select value={category} onChange={e => setCategory(e.target.value)}>
+          <option value="">All Categories</option>
+          {[...new Set(opportunities.map(o => o.category))].map((cat, idx) => (
+            <option key={idx} value={cat}>{cat}</option>
+          ))}
+        </select>
+        <input
+          type="number"
+          placeholder="Min Amount"
+          value={minAmount}
+          onChange={e => setMinAmount(e.target.value)}
+          style={{ marginLeft: 8 }}
+        />
+        <input
+          type="number"
+          placeholder="Max Amount"
+          value={maxAmount}
+          onChange={e => setMaxAmount(e.target.value)}
+          style={{ marginLeft: 8 }}
+        />
+      </div>
       {isLoading ? (
         <p>Loading opportunities...</p> // Placeholder for loading
       ) : error ? (
         <p className="error-msg">{error}</p>
-      ) : opportunities.length > 0 ? (
+      ) : filtered.length > 0 ? (
         <div className="opportunity-grid">
-          {opportunities.map((opp) => (
+          {filtered.map((opp) => (
             <Link to={`/opportunity/${opp._id}`} key={opp._id}>
               <div className="opp-card">
                 {opp.image && (

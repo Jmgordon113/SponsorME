@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../utils/axiosConfig';
+import API from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import './CreateOpportunity.css';
 
@@ -13,6 +13,7 @@ const CreateOpportunity: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     category: '',
+    tagline: '', // Add tagline for consistency
     description: '',
     sponsorshipLevels: [{ level: '', amount: '', benefits: '' }],
   });
@@ -47,7 +48,14 @@ const CreateOpportunity: React.FC = () => {
     setError(null);
 
     try {
-      await axios.post('/api/opportunities', formData);
+      const payload = {
+        ...formData,
+        sponsorshipLevels: formData.sponsorshipLevels.map(lvl => ({
+          ...lvl,
+          amount: Number(lvl.amount),
+        })),
+      };
+      await API.post('/api/opportunities', payload);
       navigate('/dashboard-sponsee');
     } catch (err) {
       console.error('Error creating opportunity:', err);
@@ -69,6 +77,10 @@ const CreateOpportunity: React.FC = () => {
         <label>
           Category:
           <input type="text" name="category" value={formData.category} onChange={handleChange} required />
+        </label>
+        <label>
+          Tagline:
+          <input type="text" name="tagline" value={formData.tagline} onChange={handleChange} />
         </label>
         <label>
           Description:

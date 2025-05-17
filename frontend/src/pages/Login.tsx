@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../utils/axiosConfig'; // Use the configured Axios instance
-import jwtDecode from 'jwt-decode'; // Use jwt-decode for decoding JWT
 import './Login.css';
 
 const Login: React.FC = () => {
@@ -16,15 +15,14 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      const res = await API.post('/auth/login', { email, password });
+      const res = await API.post('/api/auth/login', { email, password });
       const token = res.data.token;
-      const decoded: { userId: string; role: string; name: string } = jwtDecode(token);
       localStorage.setItem('token', token);
-      localStorage.setItem('userId', decoded.userId);
-      localStorage.setItem('role', decoded.role);
-      localStorage.setItem('name', decoded.name);
+      localStorage.setItem('userId', res.data.user._id);
+      localStorage.setItem('name', res.data.user.name);
+      localStorage.setItem('role', res.data.user.role);
 
-      if (decoded.role === 'sponsee') {
+      if (res.data.user.role === 'sponsee') {
         navigate('/dashboard-sponsee');
       } else {
         navigate('/dashboard-sponsor');

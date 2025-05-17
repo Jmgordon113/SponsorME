@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
-function Home() {
+const Home: React.FC = () => {
   const navigate = useNavigate();
   const [role, setRole] = useState('sponsor');
 
@@ -31,6 +31,6 @@ function Home() {
       <p className="login-link" onClick={handleLogin}>Log in</p>
     </div>
   );
-}
+};
 
 export default Home;

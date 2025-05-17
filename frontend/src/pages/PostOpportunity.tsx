@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import axios from '../utils/axiosConfig'; // Use the configured axios instance
+import API from '../utils/axiosConfig'; // FIX: import from implementation, not .d.ts or .ts
 
 interface SponsorshipLevel {
-  name: string;
+  level: string;
   amount: string;
+  benefits: string;
 }
 
 const PostOpportunity: React.FC = () => {
@@ -12,7 +13,7 @@ const PostOpportunity: React.FC = () => {
     category: '',
     tagline: '',
     description: '',
-    sponsorshipLevels: [{ name: '', amount: '' }],
+    sponsorshipLevels: [{ level: '', amount: '', benefits: '' }],
   });
 
   const handleChange = (
@@ -21,7 +22,7 @@ const PostOpportunity: React.FC = () => {
     field: keyof SponsorshipLevel
   ) => {
     const levels = [...formData.sponsorshipLevels];
-    levels[index][field] = e.target.value as string; // Ensure type safety
+    levels[index][field] = e.target.value;
     setFormData({ ...formData, sponsorshipLevels: levels });
   };
 
@@ -35,28 +36,33 @@ const PostOpportunity: React.FC = () => {
   const handleAddLevel = () => {
     setFormData({
       ...formData,
-      sponsorshipLevels: [...formData.sponsorshipLevels, { name: '', amount: '' }],
+      sponsorshipLevels: [...formData.sponsorshipLevels, { level: '', amount: '', benefits: '' }],
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = process.env.REACT_APP_TEST_TOKEN; // Use the TEST token from your .env
-      const res = await axios.post('/api/opportunities', formData, {
+      const token = localStorage.getItem('token');
+      const payload = {
+        ...formData,
+        sponsorshipLevels: formData.sponsorshipLevels.map(lvl => ({
+          ...lvl,
+          amount: Number(lvl.amount),
+        })),
+      };
+      await API.post('/api/opportunities', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       alert('Opportunity posted successfully!');
-      console.log(res.data);
-      // Reset form
       setFormData({
         title: '',
         category: '',
         tagline: '',
         description: '',
-        sponsorshipLevels: [{ name: '', amount: '' }],
+        sponsorshipLevels: [{ level: '', amount: '', benefits: '' }],
       });
     } catch (err) {
       console.error(err);
@@ -66,7 +72,6 @@ const PostOpportunity: React.FC = () => {
 
   return (
     <div style={{ padding: '2rem' }}>
-          // Removed misplaced onChange handler
       <form onSubmit={handleSubmit}>
         <input
           name="title"
@@ -102,10 +107,10 @@ const PostOpportunity: React.FC = () => {
         {formData.sponsorshipLevels.map((level, index) => (
           <div key={index}>
             <input
-              name="sponsorshipLevels.name"
+              name="sponsorshipLevels.level"
               placeholder="Level Name (e.g., Bronze)"
-              value={level.name}
-              onChange={(e) => handleChange(e, index, 'name')}
+              value={level.level}
+              onChange={(e) => handleChange(e, index, 'level')}
               required
             />
             <input
@@ -113,6 +118,13 @@ const PostOpportunity: React.FC = () => {
               placeholder="Amount"
               value={level.amount}
               onChange={(e) => handleChange(e, index, 'amount')}
+              required
+            />
+            <input
+              name="sponsorshipLevels.benefits"
+              placeholder="Benefits"
+              value={level.benefits}
+              onChange={(e) => handleChange(e, index, 'benefits')}
               required
             />
             <br /><br />

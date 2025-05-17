@@ -33,6 +33,7 @@ const Messages: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   // Load token and userId from localStorage
   useEffect(() => {
@@ -45,7 +46,7 @@ const Messages: React.FC = () => {
     }
 
     try {
-      const decoded: { userId: string; exp: number } = jwt_decode(token);
+      const decoded: { userId: string; exp: number; role: string } = jwt_decode(token);
       const currentTime = Date.now() / 1000;
 
       if (decoded.exp < currentTime) {
@@ -57,6 +58,7 @@ const Messages: React.FC = () => {
       }
 
       setUserId(decoded.userId);
+      setRole(decoded.role);
     } catch (err) {
       console.error('Invalid token:', err);
       localStorage.removeItem('token');
@@ -68,7 +70,8 @@ const Messages: React.FC = () => {
 
     const fetchConversations = async () => {
       try {
-        const res = await API.get('/api/messages/conversations'); // Correct API endpoint
+        // Use the user's ID in the API call
+        const res = await API.get(`/api/messages/conversations/${userId}`);
         // Sort by most recent message
         const sorted = [...res.data].sort((a, b) => {
           const aTime = new Date(a.messages[a.messages.length - 1]?.createdAt).getTime();
@@ -91,9 +94,9 @@ const Messages: React.FC = () => {
       }
     };
 
-    fetchConversations();
+    if (userId) fetchConversations();
 
-    socket.emit('join', jwt_decode<{ userId: string }>(token).userId);
+    socket.emit('join', userId);
 
     socket.on('receive-message', (msg: Message) => {
       const partnerId = msg.sender._id !== userId ? msg.sender._id : msg.receiver._id;
@@ -113,10 +116,14 @@ const Messages: React.FC = () => {
     return () => {
       socket.disconnect(); // Disconnect only when component unmounts
     };
-  }, [navigate, location.state]);
+  }, [navigate, location.state, userId]);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !selectedConversation) return;
+    if (role !== 'sponsor') {
+      alert('Only sponsors can initiate messages.');
+      return;
+    }
 
     try {
       const res = await API.post('/api/messages', {

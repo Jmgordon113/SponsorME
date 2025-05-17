@@ -3,6 +3,7 @@ const router = express.Router();
 const requireAuth = require('../middleware/requireAuth');
 const validateRole = require('../middleware/validateRole');
 const Opportunity = require('../models/Opportunity');
+const Sponsorship = require('../models/Sponsorship'); // Add missing import
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); // Configure multer for local uploads
 
@@ -50,9 +51,12 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const opportunity = await Opportunity.findById(req.params.id)
-      .populate('sponseeId'); // Ensure sponseeId includes full user object
+      .populate('sponseeId', 'name'); // Only populate name
     if (!opportunity) return res.status(404).json({ error: 'Opportunity not found' });
-    res.json(opportunity);
+    // Add organizer field for frontend compatibility
+    const oppObj = opportunity.toObject();
+    oppObj.organizer = opportunity.sponseeId?.name || '';
+    res.json(oppObj);
   } catch (err) {
     console.error('Error fetching opportunity:', err);
     res.status(500).json({ error: 'Server error' });
@@ -62,16 +66,18 @@ router.get('/:id', async (req, res) => {
 // PUT /api/opportunities/:id
 router.put('/:id', requireAuth, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, sponsorshipLevels } = req.body;
+    const { title, description, sponsorshipLevels, category, tagline } = req.body;
     const opportunity = await Opportunity.findById(req.params.id);
 
     if (!opportunity) return res.status(404).json({ error: 'Opportunity not found' });
-    if (opportunity.creator.toString() !== req.user._id.toString()) {
+    if (opportunity.sponseeId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ error: 'Unauthorized' });
     }
 
     opportunity.title = title || opportunity.title;
     opportunity.description = description || opportunity.description;
+    opportunity.category = category || opportunity.category;
+    opportunity.tagline = tagline || opportunity.tagline;
     opportunity.sponsorshipLevels = sponsorshipLevels || opportunity.sponsorshipLevels;
     if (req.file) {
       opportunity.image = `/uploads/${req.file.filename}`;

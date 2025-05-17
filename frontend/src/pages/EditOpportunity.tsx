@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from '../utils/axiosConfig';
+import API from '../utils/axiosConfig';
 import './EditOpportunity.css';
 
 interface SponsorshipLevel {
@@ -15,6 +15,7 @@ const EditOpportunity: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     category: '',
+    tagline: '', // Add tagline for consistency
     description: '',
     sponsorshipLevels: [{ level: '', amount: '', benefits: '' }],
   });
@@ -24,11 +25,26 @@ const EditOpportunity: React.FC = () => {
   useEffect(() => {
     const fetchOpportunity = async () => {
       try {
-        const res = await axios.get(`/api/opportunities/${id}`);
-        setFormData(res.data);
-      } catch (err) {
-        console.error('Error fetching opportunity:', err);
-        setError('Failed to load opportunity details.');
+        const res = await API.get(`/api/opportunities/${id}`);
+        // Only pick editable fields
+        const { title, category, tagline, description, sponsorshipLevels } = res.data;
+        setFormData({
+          title,
+          category,
+          tagline: tagline || '',
+          description,
+          sponsorshipLevels: sponsorshipLevels.map((lvl: any) => ({
+            level: lvl.level,
+            amount: String(lvl.amount),
+            benefits: lvl.benefits,
+          })),
+        });
+      } catch (err: any) {
+        if (err.response && err.response.status === 404) {
+          setError('Opportunity not found.');
+        } else {
+          setError('Failed to load opportunity details.');
+        }
       }
     };
 
@@ -62,7 +78,15 @@ const EditOpportunity: React.FC = () => {
     setError(null);
 
     try {
-      await axios.put(`/api/opportunities/${id}`, formData);
+      // Convert amount to number before sending
+      const payload = {
+        ...formData,
+        sponsorshipLevels: formData.sponsorshipLevels.map(lvl => ({
+          ...lvl,
+          amount: Number(lvl.amount),
+        })),
+      };
+      await API.put(`/api/opportunities/${id}`, payload);
       navigate('/dashboard-sponsee');
     } catch (err) {
       console.error('Error updating opportunity:', err);
@@ -84,6 +108,10 @@ const EditOpportunity: React.FC = () => {
         <label>
           Category:
           <input type="text" name="category" value={formData.category} onChange={handleChange} required />
+        </label>
+        <label>
+          Tagline:
+          <input type="text" name="tagline" value={formData.tagline} onChange={handleChange} />
         </label>
         <label>
           Description:

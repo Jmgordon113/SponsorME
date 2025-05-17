@@ -45,6 +45,40 @@ router.get('/conversations', requireAuth, async (req, res) => {
   }
 });
 
+// GET /api/messages/conversations/:userId
+router.get('/conversations/:userId', requireAuth, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const messages = await Message.find({
+      $or: [{ sender: userId }, { receiver: userId }],
+    })
+      .populate('sender', 'name')
+      .populate('receiver', 'name')
+      .sort({ timestamp: 1 });
+
+    const conversations = {};
+    messages.forEach((msg) => {
+      const otherUser =
+        msg.sender._id.toString() === userId.toString() ? msg.receiver : msg.sender;
+
+      if (!conversations[otherUser._id]) {
+        conversations[otherUser._id] = {
+          user: otherUser,
+          messages: [],
+        };
+      }
+
+      conversations[otherUser._id].messages.push(msg);
+    });
+
+    res.json(Object.values(conversations));
+  } catch (err) {
+    console.error('Error fetching conversations:', err);
+    res.status(500).json({ error: 'Failed to load conversations' });
+  }
+});
+
 // GET /api/messages/:senderId
 router.get('/:senderId', requireAuth, async (req, res) => {
   try {

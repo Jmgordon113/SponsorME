@@ -31,7 +31,7 @@ const mockOpportunities = [
         benefits: "Branded giveaway hats for volunteers",
       },
     ],
-    creator: mockSponseeId,
+    sponseeId: mockSponseeId,
   },
   {
     title: "Sunset Sounds Music Festival",
@@ -47,7 +47,7 @@ const mockOpportunities = [
           "Naming rights, logo throughout event, 5 VIP tickets, branded t-shirts & hats, press release inclusion",
       },
     ],
-    creator: mockSponseeId,
+    sponseeId: mockSponseeId,
   },
 ];
 
