@@ -11,6 +11,10 @@ const DashboardSponsor: React.FC = () => {
   const [sponsoredOpps, setSponsoredOpps] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [totalSponsored, setTotalSponsored] = useState<number>(0);
+
+  interface TotalResponse {
+    total: number;
+  }
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<{ opportunities: string; messages: string; totals: string }>({
     opportunities: '',
@@ -36,19 +40,21 @@ const DashboardSponsor: React.FC = () => {
         ]);
 
         if (oppRes.status === 'fulfilled') {
-          setSponsoredOpps(oppRes.value.data || []);
+          setSponsoredOpps(Array.isArray(oppRes.value.data) ? oppRes.value.data : []);
         } else {
           setError((prev) => ({ ...prev, opportunities: 'Could not load opportunities. Try again later.' }));
         }
 
         if (msgRes.status === 'fulfilled') {
-          setMessages(msgRes.value.data || []);
+          setMessages(Array.isArray(msgRes.value.data) ? msgRes.value.data : []);
         } else {
-          setError((prev) => ({ ...prev, messages: 'Could not load messages. Try again later.' }));
+          if (totalRes.status === 'fulfilled') {
+            setTotalSponsored((totalRes.value.data as TotalResponse)?.total || 0);
+          }
         }
 
         if (totalRes.status === 'fulfilled') {
-          setTotalSponsored(totalRes.value.data?.total || 0);
+          setTotalSponsored((totalRes.value.data as TotalResponse)?.total || 0);
         } else {
           setError((prev) => ({ ...prev, totals: 'Could not load sponsorship totals. Try again later.' }));
         }

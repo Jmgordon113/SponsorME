@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
 import API from '../utils/axiosConfig'; // Use the configured Axios instance
-import jwt_decode from 'jwt-decode';
-import { io } from 'socket.io-client';
+import { jwtDecode } from 'jwt-decode'; // Correctly import jwtDecode as a named import
+import io from 'socket.io-client';
 import './Messages.css';
 
 const socket = io('http://localhost:5001', {
   transports: ['websocket'],
-  withCredentials: true,
 });
 
 interface Message {
@@ -16,6 +15,7 @@ interface Message {
   receiver: { _id: string; name: string };
   text: string;
   timestamp: string;
+  createdAt: string; // Added createdAt property
   opportunityId?: { _id: string; title: string };
 }
 
@@ -46,7 +46,7 @@ const Messages: React.FC = () => {
     }
 
     try {
-      const decoded: { userId: string; exp: number; role: string } = jwt_decode(token);
+      const decoded = jwtDecode<{ userId: string; exp: number; role: string }>(token);
       const currentTime = Date.now() / 1000;
 
       if (decoded.exp < currentTime) {
@@ -71,7 +71,7 @@ const Messages: React.FC = () => {
     const fetchConversations = async () => {
       try {
         // Use the user's ID in the API call
-        const res = await API.get(`/api/messages/conversations/${userId}`);
+        const res = await API.get<Conversation[]>(`/api/messages/conversations/${userId}`);
         // Sort by most recent message
         const sorted = [...res.data].sort((a, b) => {
           const aTime = new Date(a.messages[a.messages.length - 1]?.createdAt).getTime();
@@ -126,7 +126,7 @@ const Messages: React.FC = () => {
     }
 
     try {
-      const res = await API.post('/api/messages', {
+      const res = await API.post<Message>('/api/messages', {
         receiverId: selectedConversation.user._id,
         text: inputMessage,
         opportunityId: selectedConversation.messages[0]?.opportunityId?._id || null,

@@ -22,7 +22,7 @@ const Account: React.FC = () => {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No token found');
 
-        const { data } = await axios.get('/api/users/me', {
+        const { data } = await axios.get<UserProfile>('/api/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
 

@@ -16,12 +16,21 @@ const Signup: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  interface SignupResponse {
+    token: string;
+    user: {
+      _id: string;
+      name: string;
+      role: string;
+    };
+  }
+  
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     try {
-      const response = await API.post('/api/auth/signup', formData);
+      const response = await API.post<SignupResponse>('/api/auth/signup', formData);
       const { token, user } = response.data;
 
       if (token && user) {

@@ -27,7 +27,13 @@ const EditOpportunity: React.FC = () => {
       try {
         const res = await API.get(`/api/opportunities/${id}`);
         // Only pick editable fields
-        const { title, category, tagline, description, sponsorshipLevels } = res.data;
+        const { title, category, tagline, description, sponsorshipLevels } = res.data as {
+          title: string;
+          category: string;
+          tagline?: string;
+          description: string;
+          sponsorshipLevels: { level: string; amount: number; benefits: string }[];
+        };
         setFormData({
           title,
           category,

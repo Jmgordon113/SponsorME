@@ -20,7 +20,7 @@ const OpportunityFeed: React.FC = () => {
   useEffect(() => {
     const fetchOpportunities = async () => {
       try {
-        const res = await API.get('/api/opportunities'); // Use API instance
+        const res = await API.get<Opportunity[]>('/api/opportunities'); // Use API instance
         setOpportunities(res.data || []);
       } catch (err) {
         console.error('Error fetching opportunities:', err);

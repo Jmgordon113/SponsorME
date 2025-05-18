@@ -10,28 +10,37 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  interface LoginResponse {
+    token: string;
+    user: {
+      _id: string;
+      name: string;
+      role: string;
+    };
+  }
+  
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    try {
-      const res = await API.post('/api/auth/login', { email, password });
-      const token = res.data.token;
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', res.data.user._id);
-      localStorage.setItem('name', res.data.user.name);
-      localStorage.setItem('role', res.data.user.role);
-
-      if (res.data.user.role === 'sponsee') {
-        navigate('/dashboard-sponsee');
-      } else {
-        navigate('/dashboard-sponsor');
+      e.preventDefault();
+      setError(null);
+  
+      try {
+        const res = await API.post<LoginResponse>('/api/auth/login', { email, password });
+        const token = res.data.token;
+        localStorage.setItem('token', token);
+        localStorage.setItem('userId', res.data.user._id);
+        localStorage.setItem('name', res.data.user.name);
+        localStorage.setItem('role', res.data.user.role);
+  
+        if (res.data.user.role === 'sponsee') {
+          navigate('/dashboard-sponsee');
+        } else {
+          navigate('/dashboard-sponsor');
+        }
+      } catch (err: any) {
+        console.error('Login failed:', err);
+        setError('Invalid email or password. Please try again.');
       }
-    } catch (err: any) {
-      console.error('Login failed:', err);
-      setError('Invalid email or password. Please try again.');
-    }
-  };
+    };
 
   return (
     <div className="login-container">

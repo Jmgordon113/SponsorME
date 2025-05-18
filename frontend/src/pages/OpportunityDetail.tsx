@@ -22,7 +22,7 @@ const OpportunityDetail: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      API.get(`/api/opportunities/${id}`).then((res) => {
+      API.get<Opportunity>(`/api/opportunities/${id}`).then((res) => {
         setOpportunity(res.data);
       }).catch((err) => console.error('Failed to load opportunity', err));
     }

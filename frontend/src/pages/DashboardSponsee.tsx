@@ -10,7 +10,14 @@ interface Opportunity {
   title: string;
   description: string;
   value: number;
+  sponsorshipLevels: SponsorshipLevel[];
   [key: string]: any;
+}
+
+interface SponsorshipLevel {
+  level: string;
+  amount: number;
+  benefits: string;
 }
 
 const DashboardSponsee: React.FC = () => {
@@ -35,12 +42,12 @@ const DashboardSponsee: React.FC = () => {
         setUserName(storedName || 'Sponsee');
 
         const [oppRes, totalRes] = await Promise.allSettled([
-          axios.get('/api/opportunities/mine'),
-          axios.get('/api/sponsorships/totals'),
+          axios.get<Opportunity[]>('/api/opportunities/mine'),
+          axios.get<{ total: number }>('/api/sponsorships/totals'),
         ]);
 
         if (oppRes.status === 'fulfilled') {
-          setOpportunities(oppRes.value.data || []);
+          setOpportunities(Array.isArray(oppRes.value.data) ? oppRes.value.data : []);
         } else {
           setError((prev) => ({
             ...prev,
@@ -48,8 +55,8 @@ const DashboardSponsee: React.FC = () => {
           }));
         }
 
-        if (totalRes.status === 'fulfilled') {
-          setTotalSponsored(totalRes.value.data?.total || 0);
+        if (totalRes.status === 'fulfilled' && totalRes.value.data?.total !== undefined) {
+          setTotalSponsored(totalRes.value.data.total);
         } else {
           setError((prev) => ({
             ...prev,
