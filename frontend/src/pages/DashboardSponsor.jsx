@@ -6,17 +6,14 @@ import OpportunityList from '../components/OpportunityList';
 import MessagePreview from '../components/MessagePreview';
 import LogoutButton from '../components/LogoutButton';
 
-const DashboardSponsor: React.FC = () => {
-  const [userName, setUserName] = useState<string>('Sponsor');
-  const [sponsoredOpps, setSponsoredOpps] = useState<any[]>([]);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [totalSponsored, setTotalSponsored] = useState<number>(0);
+const DashboardSponsor = () => {
+  const [userName, setUserName] = useState('Sponsor');
+  const [sponsoredOpps, setSponsoredOpps] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [totalSponsored, setTotalSponsored] = useState(0);
 
-  interface TotalResponse {
-    total: number;
-  }
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<{ opportunities: string; messages: string; totals: string }>({
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState({ opportunities: '', messages: '', totals: '' });
     opportunities: '',
     messages: '',
     totals: '',
@@ -49,12 +46,12 @@ const DashboardSponsor: React.FC = () => {
           setMessages(Array.isArray(msgRes.value.data) ? msgRes.value.data : []);
         } else {
           if (totalRes.status === 'fulfilled') {
-            setTotalSponsored((totalRes.value.data as TotalResponse)?.total || 0);
+            setTotalSponsored(totalRes.value.data.total || 0);
           }
         }
 
         if (totalRes.status === 'fulfilled') {
-          setTotalSponsored((totalRes.value.data as TotalResponse)?.total || 0);
+          setTotalSponsored(totalRes.value.data.total || 0);
         } else {
           setError((prev) => ({ ...prev, totals: 'Could not load sponsorship totals. Try again later.' }));
         }

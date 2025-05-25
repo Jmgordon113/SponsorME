@@ -4,19 +4,10 @@ import API from '../utils/axiosConfig';
 import './OpportunityFeed.css';
 
 // Define the Opportunity interface
-interface Opportunity {
-  _id: string;
-  title: string;
-  category: string;
-  description: string;
-  sponsorshipLevels: { level: string; amount: number; benefits: string }[];
-  image?: string; // Optional field
-}
-
-const OpportunityFeed: React.FC = () => {
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]); // Typed state
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null); // Explicit typing
+const OpportunityFeed = () => {
+  const [opportunities, setOpportunities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [category, setCategory] = useState('');
   const [minAmount, setMinAmount] = useState('');
   const [maxAmount, setMaxAmount] = useState('');
@@ -24,7 +15,7 @@ const OpportunityFeed: React.FC = () => {
   useEffect(() => {
     const fetchOpportunities = async () => {
       try {
-        const res = await API.get<Opportunity[]>('/api/opportunities'); // Typed API response
+        const res = await API.get('/api/opportunities');
         setOpportunities(res.data || []);
       } catch (err) {
         console.error('Error fetching opportunities:', err);

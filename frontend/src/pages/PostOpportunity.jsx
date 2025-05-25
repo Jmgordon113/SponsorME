@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import API from '../utils/axiosConfig'; // FIX: import from implementation, not .d.ts or .ts
 
-interface SponsorshipLevel {
-  level: string;
-  amount: string;
-  benefits: string;
-}
-
-const PostOpportunity: React.FC = () => {
+const PostOpportunity = () => {
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -17,9 +11,9 @@ const PostOpportunity: React.FC = () => {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    index: number,
-    field: keyof SponsorshipLevel
+    e,
+    index,
+    field
   ) => {
     const levels = [...formData.sponsorshipLevels];
     levels[index][field] = e.target.value;
@@ -27,7 +21,7 @@ const PostOpportunity: React.FC = () => {
   };
 
   const handleFieldChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e
   ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -40,7 +34,7 @@ const PostOpportunity: React.FC = () => {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');

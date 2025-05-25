@@ -9,31 +9,16 @@ const socket = io('http://localhost:5001', {
   transports: ['websocket'],
 });
 
-interface Message {
-  _id: string;
-  sender: { _id: string; name: string };
-  receiver: { _id: string; name: string };
-  text: string;
-  timestamp: string;
-  createdAt: string; // Added createdAt property
-  opportunityId?: { _id: string; title: string };
-}
-
-interface Conversation {
-  user: { _id: string; name: string };
-  messages: Message[];
-}
-
-const Messages: React.FC = () => {
+const Messages = () => {
   const navigate = useNavigate();
   const location = useLocation(); // Use useLocation to retrieve state
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [conversations, setConversations] = useState([]);
+  const [selectedConversation, setSelectedConversation] = useState(null);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
+  const [error, setError] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [role, setRole] = useState(null);
 
   // Load token and userId from localStorage
   useEffect(() => {
@@ -46,7 +31,7 @@ const Messages: React.FC = () => {
     }
 
     try {
-      const decoded = jwtDecode<{ userId: string; exp: number; role: string }>(token);
+      const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
 
       if (decoded.exp < currentTime) {
@@ -71,7 +56,7 @@ const Messages: React.FC = () => {
     const fetchConversations = async () => {
       try {
         // Use the user's ID in the API call
-        const res = await API.get<Conversation[]>(`/api/messages/conversations/${userId}`);
+        const res = await API.get(`/api/messages/conversations/${userId}`);
         // Sort by most recent message
         const sorted = [...res.data].sort((a, b) => {
           const aTime = new Date(a.messages[a.messages.length - 1]?.createdAt).getTime();
@@ -83,10 +68,10 @@ const Messages: React.FC = () => {
         // Auto-select conversation if selectedUserId is passed in state
         const { selectedUserId } = location.state || {};
         if (selectedUserId) {
-          const conv = res.data.find((c: Conversation) => c.user._id === selectedUserId);
+          const conv = res.data.find((c) => c.user._id === selectedUserId);
           if (conv) setSelectedConversation(conv);
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('Failed to load messages:', err?.response?.data || err.message);
         setError('Failed to load conversations. Please try again later.');
       } finally {
@@ -98,7 +83,7 @@ const Messages: React.FC = () => {
 
     socket.emit('join', userId);
 
-    socket.on('receive-message', (msg: Message) => {
+    socket.on('receive-message', (msg) => {
       const partnerId = msg.sender._id !== userId ? msg.sender._id : msg.receiver._id;
       const exists = conversations.some((c) => c.user._id === partnerId);
       if (!exists) {
@@ -126,7 +111,7 @@ const Messages: React.FC = () => {
     }
 
     try {
-      const res = await API.post<Message>('/api/messages', {
+      const res = await API.post('/api/messages', {
         receiverId: selectedConversation.user._id,
         text: inputMessage,
         opportunityId: selectedConversation.messages[0]?.opportunityId?._id || null,
@@ -141,7 +126,7 @@ const Messages: React.FC = () => {
         receiverId: selectedConversation.user._id,
         message: res.data,
       });
-    } catch (err: any) {
+    } catch (err) {
       alert('Failed to send message. Please try again.');
     }
   };

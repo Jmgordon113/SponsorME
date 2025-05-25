@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './ToastContainer.css';
 
-interface ToastContainerProps {
-  message: string;
-  duration?: number;
-}
-
-const ToastContainer = ({ message, duration = 3000 }: ToastContainerProps) => {
+const ToastContainer = ({ message, duration = 3000 }) => {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {

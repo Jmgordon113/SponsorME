@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
-const Profile: React.FC = () => {
-  const { userId } = useParams<{ userId: string }>();
+const Profile = () => {
+  const { userId } = useParams();
 
   return (
     <div className="profile">

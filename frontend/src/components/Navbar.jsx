@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import LogoutButton from '../components/LogoutButton'; // adjust path as needed
 import './Navbar.css';
 
-const Navbar: React.FC = () => {
+const Navbar = () => {
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
   const dashboardPath = role === 'sponsee' ? '/dashboard-sponsee' : '/dashboard-sponsor';

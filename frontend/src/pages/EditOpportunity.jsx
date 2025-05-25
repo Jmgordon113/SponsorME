@@ -1,15 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import API from '../utils/axiosConfig';
-import { useNavigate } from 'react-router-dom';
-import './CreateOpportunity.css';
+import './EditOpportunity.css';
 
-interface SponsorshipLevel {
-  level: string;
-  amount: string;
-  benefits: string;
-}
-
-const CreateOpportunity: React.FC = () => {
+const EditOpportunity = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -18,17 +14,45 @@ const CreateOpportunity: React.FC = () => {
     sponsorshipLevels: [{ level: '', amount: '', benefits: '' }],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOpportunity = async () => {
+      try {
+        const res = await API.get(`/api/opportunities/${id}`);
+        // Only pick editable fields
+        const { title, category, tagline, description, sponsorshipLevels } = res.data;
+        setFormData({
+          title,
+          category,
+          tagline: tagline || '',
+          description,
+          sponsorshipLevels: sponsorshipLevels.map((lvl) => ({
+            level: lvl.level,
+            amount: String(lvl.amount),
+            benefits: lvl.benefits,
+          })),
+        });
+      } catch (err) {
+        if (err.response && err.response.status === 404) {
+          setError('Opportunity not found.');
+        } else {
+          setError('Failed to load opportunity details.');
+        }
+      }
+    };
+
+    fetchOpportunity();
+  }, [id]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    index?: number,
-    field?: keyof SponsorshipLevel
+    e,
+    index,
+    field
   ) => {
     if (index !== undefined && field) {
       const levels = [...formData.sponsorshipLevels];
-      levels[index][field as keyof SponsorshipLevel] = e.target.value;
+      levels[index][field] = e.target.value;
       setFormData({ ...formData, sponsorshipLevels: levels });
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -42,12 +66,13 @@ const CreateOpportunity: React.FC = () => {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
     try {
+      // Convert amount to number before sending
       const payload = {
         ...formData,
         sponsorshipLevels: formData.sponsorshipLevels.map(lvl => ({
@@ -55,19 +80,19 @@ const CreateOpportunity: React.FC = () => {
           amount: Number(lvl.amount),
         })),
       };
-      await API.post('/api/opportunities', payload);
+      await API.put(`/api/opportunities/${id}`, payload);
       navigate('/dashboard-sponsee');
     } catch (err) {
-      console.error('Error creating opportunity:', err);
-      setError('Failed to create opportunity. Please try again.');
+      console.error('Error updating opportunity:', err);
+      setError('Failed to update opportunity. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="create-opportunity-container">
-      <h2>Create New Opportunity</h2>
+    <div className="edit-opportunity-container">
+      <h2>Edit Opportunity</h2>
       {error && <p className="error-msg">{error}</p>}
       <form onSubmit={handleSubmit}>
         <label>
@@ -113,11 +138,11 @@ const CreateOpportunity: React.FC = () => {
           + Add Level
         </button>
         <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Submitting...' : 'Create Opportunity'}
+          {isSubmitting ? 'Submitting...' : 'Update Opportunity'}
         </button>
       </form>
     </div>
   );
 };
 
-export default CreateOpportunity;
+export default EditOpportunity;

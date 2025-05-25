@@ -3,24 +3,15 @@ import API from '../utils/axiosConfig';
 import { Link } from 'react-router-dom';
 import './Feed.css';
 
-interface Opportunity {
-  _id: string;
-  title: string;
-  category: string;
-  tagline: string;
-  description: string;
-  sponsorshipLevels: { level: string; amount: number; benefits: string }[];
-}
-
-const Feed: React.FC = () => {
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+const Feed = () => {
+  const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchOpportunities = async () => {
       try {
-        const res = await API.get<Opportunity[]>('/api/opportunities');
+        const res = await API.get('/api/opportunities');
         setOpportunities(res.data);
       } catch (err) {
         console.error('Failed to fetch opportunities:', err);
