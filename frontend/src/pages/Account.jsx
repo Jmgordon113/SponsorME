@@ -1,20 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
-import LogoutButton from '../components/LogoutButton'; // ✅ Make sure this is LogoutButton.tsx
+import LogoutButton from '../components/LogoutButton';
 import './Account.css';
 
-interface UserProfile {
-  name: string;
-  email: string;
-  role: string;
-}
-
-const Account: React.FC = () => {
-  const [user, setUser] = useState<UserProfile>({ name: '', email: '', role: '' });
-  const [password, setPassword] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [showConfirm, setShowConfirm] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+const Account = () => {
+  const [user, setUser] = useState({ name: '', email: '', role: '' });
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -22,7 +16,7 @@ const Account: React.FC = () => {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No token found');
 
-        const { data } = await axios.get<UserProfile>('/api/users/me', {
+        const { data } = await axios.get('/api/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -36,7 +30,7 @@ const Account: React.FC = () => {
     fetchUser();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
@@ -61,7 +55,7 @@ const Account: React.FC = () => {
     <div className="account-page">
       <div className="account-header-container">
         <h1>Account Settings</h1>
-        <LogoutButton /> {/* ✅ Ensure this is coming from a valid LogoutButton.tsx */}
+        <LogoutButton />
       </div>
 
       <form>

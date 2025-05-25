@@ -5,27 +5,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import OpportunityList from '../components/OpportunityList';
 import LogoutButton from '../components/LogoutButton';
 
-interface Opportunity {
-  _id: string;
-  title: string;
-  description: string;
-  value: number;
-  sponsorshipLevels: SponsorshipLevel[];
-  [key: string]: any;
-}
-
-interface SponsorshipLevel {
-  level: string;
-  amount: number;
-  benefits: string;
-}
-
-const DashboardSponsee: React.FC = () => {
-  const [userName, setUserName] = useState<string>('Sponsee');
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-  const [totalSponsored, setTotalSponsored] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<{ opportunities: string; totals: string }>({
+const DashboardSponsee = () => {
+  const [userName, setUserName] = useState('Sponsee');
+  const [opportunities, setOpportunities] = useState([]);
+  const [totalSponsored, setTotalSponsored] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState({ opportunities: '', totals: '' });
     opportunities: '',
     totals: '',
   });
@@ -42,8 +27,8 @@ const DashboardSponsee: React.FC = () => {
         setUserName(storedName || 'Sponsee');
 
         const [oppRes, totalRes] = await Promise.allSettled([
-          axios.get<Opportunity[]>('/api/opportunities/mine'),
-          axios.get<{ total: number }>('/api/sponsorships/totals'),
+          axios.get('/api/opportunities/mine'),
+          axios.get('/api/sponsorships/totals'),
         ]);
 
         if (oppRes.status === 'fulfilled') {

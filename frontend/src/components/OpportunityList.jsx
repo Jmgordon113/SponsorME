@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // --- LogoutButton component ---
-export const LogoutButton: React.FC = () => {
+export const LogoutButton = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -21,29 +21,7 @@ export const LogoutButton: React.FC = () => {
 };
 
 // --- OpportunityList component ---
-type SponsorshipLevel = {
-  level: string;
-  amount: number;
-  benefits: string;
-  sponsorId?: string;
-};
-
-type Opportunity = {
-  _id: string;
-  title: string;
-  category?: string;
-  tagline?: string;
-  description: string;
-  sponsorshipLevels: SponsorshipLevel[];
-};
-
-type OpportunityListProps = {
-  opportunities: Opportunity[];
-  error?: string;
-  isSponsor: boolean;
-};
-
-const OpportunityList: React.FC<OpportunityListProps> = ({ opportunities, error, isSponsor }) => {
+const OpportunityList = ({ opportunities, error, isSponsor }) => {
   const navigate = useNavigate();
 
   if (error) {

@@ -1,12 +1,6 @@
 import React, { useEffect } from 'react';
 
-declare global {
-  interface Window {
-    AppleID?: any;
-  }
-}
-
-const AppleLoginButton: React.FC = () => {
+const AppleLoginButton = () => {
   useEffect(() => {
     if (window.AppleID) {
       window.AppleID.auth.init({
@@ -20,7 +14,7 @@ const AppleLoginButton: React.FC = () => {
 
   const handleAppleLogin = () => {
     if (window.AppleID) {
-      window.AppleID.auth.signIn().then((response: any) => {
+      window.AppleID.auth.signIn().then((response) => {
         fetch('/api/auth/apple-login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -37,7 +31,7 @@ const AppleLoginButton: React.FC = () => {
             }
           })
           .catch((err) => console.error('Apple login error:', err));
-      }).catch((error: any) => {
+      }).catch((error) => {
         alert('Apple login failed. Please try again.');
       });
     } else {

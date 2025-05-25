@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import API from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 
-const Signup: React.FC = () => {
+const Signup = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -10,27 +10,18 @@ const Signup: React.FC = () => {
     password: '',
     role: 'sponsee',
   });
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  interface SignupResponse {
-    token: string;
-    user: {
-      _id: string;
-      name: string;
-      role: string;
-    };
-  }
-  
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
-      const response = await API.post<SignupResponse>('/api/auth/signup', formData);
+      const response = await API.post('/api/auth/signup', formData);
       const { token, user } = response.data;
 
       if (token && user) {

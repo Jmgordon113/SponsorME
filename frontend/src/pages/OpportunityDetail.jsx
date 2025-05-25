@@ -2,18 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../utils/axiosConfig'; // Ensure this points to the actual implementation file, e.g., axiosConfig.ts or axiosConfig.js
 
-interface Opportunity {
-  _id: string;
-  title: string;
-  description: string;
-  sponsorshipLevels: { level: string; amount: number; benefits: string; sponsorId?: string }[];
-  creator?: { _id: string; name: string }; // Optional, but backend may return organizer as string
-  organizer?: string; // For backend response
-}
-
-const OpportunityDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
+const OpportunityDetail = () => {
+  const { id } = useParams();
+  const [opportunity, setOpportunity] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState('');
   const [note, setNote] = useState('');
   const token = localStorage.getItem('token');
@@ -22,13 +13,13 @@ const OpportunityDetail: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      API.get<Opportunity>(`/api/opportunities/${id}`).then((res) => {
+      API.get(`/api/opportunities/${id}`).then((res) => {
         setOpportunity(res.data);
       }).catch((err) => console.error('Failed to load opportunity', err));
     }
   }, [id]);
 
-  const handleSponsorSubmit = async (e: React.FormEvent) => {
+  const handleSponsorSubmit = async (e) => {
     e.preventDefault();
     if (!opportunity) return;
     const amount = opportunity.sponsorshipLevels.find(l => l.level === selectedLevel)?.amount;

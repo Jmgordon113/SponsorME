@@ -1,17 +1,6 @@
 import React from 'react';
 
-type Message = {
-  _id: string;
-  text: string;
-  // ...other fields as needed
-};
-
-type MessagePreviewProps = {
-  messages: Message[];
-  error?: string;
-};
-
-const MessagePreview: React.FC<MessagePreviewProps> = ({ messages, error }) => {
+const MessagePreview = ({ messages, error }) => {
   return (
     <div>
       {error && <p className="error-msg">{error}</p>}

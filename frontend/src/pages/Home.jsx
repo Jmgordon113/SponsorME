@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
-const Home: React.FC = () => {
+const Home = () => {
   const navigate = useNavigate();
   const [role, setRole] = useState('sponsor');
 

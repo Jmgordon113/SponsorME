@@ -4,8 +4,8 @@
   "description": "A platform to connect sponsors with sponsees.",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "ts-node-dev --respawn --transpile-only server/app.ts",
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Your Name",
@@ -22,14 +22,5 @@
     "socket.io": "^4.0.1",
     "socket.io-client": "^4.8.1"
   },
-  "devDependencies": {
-    "@types/axios": "^0.9.36",
-    "@types/jwt-decode": "^2.2.1",
-    "@types/node": "^22.15.18",
-    "@types/react-router-dom": "^5.3.3",
-    "@types/socket.io-client": "^1.4.36",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^1.1.8",
-    "typescript": "^4.9.5"
-  }
+  "devDependencies": {}
 }

@@ -3,28 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import API from '../utils/axiosConfig'; // Use the configured Axios instance
 import './Login.css';
 
-const Login: React.FC = () => {
+const Login = () => {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
-  interface LoginResponse {
-    token: string;
-    user: {
-      _id: string;
-      name: string;
-      role: string;
-    };
-  }
-  
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e) => {
       e.preventDefault();
       setError(null);
   
       try {
-        const res = await API.post<LoginResponse>('/api/auth/login', { email, password });
+        const res = await API.post('/api/auth/login', { email, password });
         const token = res.data.token;
         localStorage.setItem('token', token);
         localStorage.setItem('userId', res.data.user._id);
@@ -36,7 +27,7 @@ const Login: React.FC = () => {
         } else {
           navigate('/dashboard-sponsor');
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('Login failed:', err);
         setError('Invalid email or password. Please try again.');
       }
