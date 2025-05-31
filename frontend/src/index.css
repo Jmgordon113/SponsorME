@@ -1,72 +1,127 @@
+/* Import Inter from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  --brand-bg: #0E0E10;
+  --brand-card: #18181b;
+  --brand-turquoise: #00F0FF;
+  --brand-white: #FFFFFF;
+  --brand-gray: #23232a;
+  --brand-shadow: 0 4px 24px rgba(0,240,255,0.08), 0 1.5px 8px rgba(0,0,0,0.25);
+  --brand-radius: 18px;
+  --brand-radius-sm: 10px;
+  --brand-spacing: 1.5rem;
+  --brand-font: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
 body {
-  background-color: #121212;
-  color: #ffffff;
-  font-family: Arial, sans-serif;
+  background: var(--brand-bg);
+  color: var(--brand-white);
+  font-family: var(--brand-font);
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--brand-font);
+  color: var(--brand-turquoise);
+  font-weight: 700;
+  margin-top: 0;
+  letter-spacing: 0.01em;
 }
 
 a {
-  color: #72E1F0;
+  color: var(--brand-turquoise);
   text-decoration: none;
+  transition: color 0.2s;
 }
 
-button {
-  font-family: inherit;
+a:hover {
+  color: var(--brand-white);
 }
 
-h1, h2, h3 {
-  color: #72E1F0;
-}
-
-.dashboard-sponsor, .dashboard-sponsee {
-  padding: 20px;
-  background-color: #121212;
-  color: #ffffff;
-}
-
-.dashboard-sponsor h1, .dashboard-sponsee h1 {
-  color: #72E1F0;
-}
-
-.dashboard-sponsor button, .dashboard-sponsee button {
-  background-color: #72E1F0;
-  color: #121212;
+button, .cta-btn {
+  font-family: var(--brand-font);
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: var(--brand-turquoise);
+  color: var(--brand-bg);
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: var(--brand-radius);
+  padding: 1rem 2.5rem;
+  margin: 0.5rem 0;
+  box-shadow: 0 0 12px var(--brand-turquoise)44;
   cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+  outline: none;
 }
 
-.dashboard-sponsor button:hover, .dashboard-sponsee button:hover {
-  background-color: #5bc0d9;
+button:hover, .cta-btn:hover {
+  background: #00b8c8;
+  color: var(--brand-white);
+  box-shadow: 0 0 24px var(--brand-turquoise)99;
 }
 
-.dashboard-sponsee ul, .dashboard-sponsor ul {
-  list-style: none;
-  padding: 0;
-}
-
-.dashboard-sponsee li, .dashboard-sponsor li {
+input, select, textarea {
+  font-family: var(--brand-font);
+  background: var(--brand-gray);
+  color: var(--brand-white);
+  border: 1.5px solid #222;
+  border-radius: var(--brand-radius-sm);
+  padding: 0.85rem 1.1rem;
+  font-size: 1rem;
   margin-bottom: 1rem;
-  padding: 1rem;
-  background-color: #1e1e1e;
-  border-radius: 5px;
+  outline: none;
+  transition: border 0.2s;
 }
 
-.dashboard-sponsee h2, .dashboard-sponsor h2 {
-  color: #72E1F0;
+input:focus, select:focus, textarea:focus {
+  border-color: var(--brand-turquoise);
+  box-shadow: 0 0 0 2px var(--brand-turquoise)33;
 }
 
-.dashboard-sponsee button, .dashboard-sponsor button {
-  background-color: #72E1F0;
-  color: #121212;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
+::-webkit-input-placeholder { color: #aaa; }
+::-moz-placeholder { color: #aaa; }
+:-ms-input-placeholder { color: #aaa; }
+::placeholder { color: #aaa; }
+
+.neon-glow {
+  color: var(--brand-turquoise);
+  text-shadow: var(--brand-glow);
 }
 
-.dashboard-sponsee button:hover, .dashboard-sponsor button:hover {
-  background-color: #5bc0d9;
+.card, .opportunity-card {
+  background: var(--brand-card);
+  border-radius: var(--brand-radius);
+  box-shadow: var(--brand-shadow);
+  padding: var(--brand-spacing);
+  margin-bottom: var(--brand-spacing);
+}
+
+@media (max-width: 900px) {
+  .card, .opportunity-card, .opportunity-list, .dashboard-container, .main {
+    padding: 1rem !important;
+  }
+}
+
+@media (max-width: 600px) {
+  h1 { font-size: 1.4rem; }
+  h2 { font-size: 1.1rem; }
+  .card, .opportunity-card {
+    padding: 1rem;
+    border-radius: var(--brand-radius-sm);
+  }
+  .cta-btn, button {
+    width: 100%;
+    font-size: 1rem;
+    padding: 1rem 0;
+  }
+}
+
+.error-msg {
+  color: #ff6b6b;
+  font-size: 1rem;
+  margin-top: 1rem;
+  text-align: center;
 }

@@ -1,83 +1,144 @@
 .opportunity-feed-container {
-  padding: 2rem;
-  color: white;
-  font-family: 'Arial', sans-serif;
+  padding: 2.5rem 2rem;
+  color: var(--brand-white);
+  font-family: 'Open Sans', Arial, sans-serif;
+  max-width: 1200px;
+  margin: auto;
 }
 
 .feed-header {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-  color: #72E1F0;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 2.2rem;
+  margin-bottom: 2rem;
+  color: var(--brand-blue-neon);
+  text-shadow: var(--brand-glow);
 }
 
 .filter-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
 }
 
-.filter-section select {
-  padding: 0.5rem;
-  border-radius: 5px;
-  border: 1px solid #555;
-  background: #222;
-  color: white;
+.filter-chip {
+  background: none;
+  border: 2px solid var(--brand-blue-neon);
+  color: var(--brand-blue-neon);
+  border-radius: 999px;
+  padding: 0.4rem 1.2rem;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.filter-chip.active,
+.filter-chip:focus {
+  background: var(--brand-blue-neon);
+  color: var(--brand-black);
+  box-shadow: var(--brand-glow);
 }
 
 .opportunity-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
 }
 
 .opp-card {
-  background: #1e1e1e;
+  background: var(--brand-gray);
+  border-radius: var(--brand-radius);
+  box-shadow: var(--brand-shadow);
   padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: flex-start;
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+  min-height: 340px;
+}
+
+.opp-card:hover {
+  box-shadow: 0 0 24px var(--brand-blue-neon), 0 0 48px var(--brand-blue-neon);
+  transform: translateY(-4px) scale(1.02);
+}
+
+.opp-thumbnail {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  background: #222;
 }
 
 .opp-card h3 {
-  font-size: 1.5rem;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 1.3rem;
   margin-bottom: 0.5rem;
+  color: var(--brand-blue-neon);
 }
 
 .category-tag {
-  font-size: 0.9rem;
-  color: #72E1F0;
+  font-size: 0.95rem;
+  color: var(--brand-blue-neon);
   margin-bottom: 0.5rem;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
 }
 
 .description {
   font-size: 1rem;
-  margin-bottom: 1rem;
-  color: #ccc;
+  margin-bottom: 1.5rem;
+  color: #bffcff;
+  font-family: 'Open Sans', Arial, sans-serif;
 }
 
-.view-btn {
-  padding: 0.5rem 1rem;
-  background: #72E1F0;
-  color: #121212;
+.sponsor-btn {
+  background: var(--brand-blue-neon);
+  color: var(--brand-black);
+  border-radius: 999px;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.7rem 2rem;
+  box-shadow: var(--brand-glow);
   border: none;
-  border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s ease;
+  margin-top: auto;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 
-.view-btn:hover {
-  background: #5bd5e5;
+.sponsor-btn:hover {
+  background: var(--brand-blue);
+  box-shadow: 0 0 16px var(--brand-blue-neon), 0 0 32px var(--brand-blue-neon);
 }
 
-.error-msg {
-  color: #ff6b6b;
-  font-size: 1rem;
-  margin-top: 1rem;
+.trending-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #ff6b6b;
+  color: #fff;
+  font-size: 0.95rem;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.3rem 1rem;
+  box-shadow: 0 0 8px #ff6b6b55;
 }
 
-.opp-thumbnail {
-  width: 120px;
-  height: 80px;
-  object-fit: cover;
+@media (max-width: 900px) {
+  .opportunity-feed-container { padding: 1rem; }
+  .opportunity-grid { gap: 1rem; }
+}
+
+@media (max-width: 600px) {
+  .opportunity-feed-container { padding: 0.5rem; }
+  .opp-card { padding: 1rem; min-height: 260px; }
+  .opp-thumbnail { height: 120px; }
 }

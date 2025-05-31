@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const requireAuth = require('../middleware/requireAuth');
 const Message = require('../models/Message');
+const User = require('../models/User');
 
 // Static route for message previews
 router.get('/preview', requireAuth, (req, res) => {
@@ -11,71 +13,114 @@ router.get('/preview', requireAuth, (req, res) => {
   ]);
 });
 
+// POST /api/messages
+router.post('/', requireAuth, async (req, res) => {
+  try {
+    const { receiverId, text, opportunityId } = req.body;
+    const senderId = req.user._id;
+    const senderRole = req.user.role;
+
+    if (!receiverId || !text) {
+      return res.status(400).json({ error: 'receiverId and text are required' });
+    }
+
+    // Only sponsors can initiate conversations
+    if (senderRole === 'sponsee') {
+      // Check if a message already exists between sponsor and sponsee
+      const existing = await Message.findOne({
+        $or: [
+          { sender: receiverId, recipient: senderId },
+          { sender: senderId, recipient: receiverId }
+        ]
+      });
+      if (!existing) {
+        return res.status(403).json({ error: 'Sponsees can only reply to existing conversations' });
+      }
+    }
+
+    // Save the message
+    const message = new Message({
+      sender: senderId,
+      recipient: receiverId,
+      content: text,
+      opportunityId: opportunityId ? mongoose.Types.ObjectId(opportunityId) : undefined,
+      read: false
+    });
+    await message.save();
+
+    // Populate sender and recipient for response
+    await message.populate('sender', 'name');
+    await message.populate('recipient', 'name');
+
+    // Emit real-time event to recipient
+    const io = req.app.get('io');
+    if (io) {
+      io.to(receiverId.toString()).emit('receive-message', message);
+    }
+
+    res.json(message);
+  } catch (err) {
+    console.error('Error sending message:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // GET /api/messages/conversations
 router.get('/conversations', requireAuth, async (req, res) => {
   try {
     const userId = req.user._id;
 
+    // Find all messages involving this user
     const messages = await Message.find({
-      $or: [{ sender: userId }, { receiver: userId }],
+      $or: [{ sender: userId }, { recipient: userId }]
     })
       .populate('sender', 'name')
-      .populate('receiver', 'name')
-      .sort({ timestamp: -1 });
+      .populate('recipient', 'name')
+      .populate('opportunityId', 'title')
+      .sort({ createdAt: 1 });
 
-    const conversations = {};
-    messages.forEach((msg) => {
-      const otherUser =
-        msg.sender._id.toString() === userId.toString() ? msg.receiver : msg.sender;
-
-      if (!conversations[otherUser._id]) {
-        conversations[otherUser._id] = {
-          user: otherUser,
-          messages: [],
+    // Group messages by the other user
+    const threads = {};
+    messages.forEach(msg => {
+      const otherUser = msg.sender._id.equals(userId) ? msg.recipient : msg.sender;
+      const key = otherUser._id.toString();
+      if (!threads[key]) {
+        threads[key] = {
+          user: { _id: otherUser._id, name: otherUser.name },
+          messages: []
         };
       }
-
-      conversations[otherUser._id].messages.push(msg);
+      threads[key].messages.push(msg);
     });
 
-    res.json(Object.values(conversations));
+    res.json(Object.values(threads));
   } catch (err) {
     console.error('Error fetching conversations:', err);
-    res.status(500).json({ error: 'Failed to load conversations' });
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
 // GET /api/messages/conversations/:userId
 router.get('/conversations/:userId', requireAuth, async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.user._id;
+    const otherUserId = req.params.userId;
 
     const messages = await Message.find({
-      $or: [{ sender: userId }, { receiver: userId }],
+      $or: [
+        { sender: userId, recipient: otherUserId },
+        { sender: otherUserId, recipient: userId }
+      ]
     })
       .populate('sender', 'name')
-      .populate('receiver', 'name')
-      .sort({ timestamp: 1 });
+      .populate('recipient', 'name')
+      .populate('opportunityId', 'title')
+      .sort({ createdAt: 1 });
 
-    const conversations = {};
-    messages.forEach((msg) => {
-      const otherUser =
-        msg.sender._id.toString() === userId.toString() ? msg.receiver : msg.sender;
-
-      if (!conversations[otherUser._id]) {
-        conversations[otherUser._id] = {
-          user: otherUser,
-          messages: [],
-        };
-      }
-
-      conversations[otherUser._id].messages.push(msg);
-    });
-
-    res.json(Object.values(conversations));
+    res.json(messages);
   } catch (err) {
-    console.error('Error fetching conversations:', err);
-    res.status(500).json({ error: 'Failed to load conversations' });
+    console.error('Error fetching conversation:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -98,33 +143,6 @@ router.get('/:senderId', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Error fetching messages:', err);
     res.status(500).json({ error: 'Server error while retrieving messages' });
-  }
-});
-
-// POST /api/messages
-router.post('/', requireAuth, async (req, res) => {
-  try {
-    const { receiverId, text, opportunityId } = req.body;
-
-    if (req.user.role !== 'sponsor') {
-      return res.status(403).json({ error: 'Only sponsors can send the first message.' });
-    }
-
-    const message = await Message.create({
-      sender: req.user._id,
-      receiver: receiverId,
-      text,
-      opportunityId,
-      timestamp: new Date(),
-    });
-
-    const io = req.app.get('io');
-    io.to(receiverId).emit('receive-message', message);
-
-    res.status(201).json(message);
-  } catch (err) {
-    console.error('Error sending message:', err);
-    res.status(500).json({ error: 'Server error' });
   }
 });
 

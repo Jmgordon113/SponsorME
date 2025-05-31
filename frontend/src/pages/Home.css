@@ -1,71 +1,98 @@
 .homepage-container {
-  background-color: #0A0A0A;
-  color: #FFFFFF;
-  height: 100vh;
+  background-color: var(--brand-charcoal);
+  color: var(--brand-white);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+  font-family: 'Open Sans', Arial, sans-serif;
+  padding: 2rem 1rem;
 }
 
 .logo-text {
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
   margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
 }
 
 .sponsor {
-  color: #72E1F0;
-  text-shadow: 0 0 5px #72E1F0, 0 0 15px #72E1F0;
+  color: var(--brand-blue-neon);
+  text-shadow: var(--brand-glow);
 }
 
 .me {
-  color: #ffffff;
+  color: var(--brand-white);
+  text-shadow: 0 0 8px #fff, 0 0 16px #fff;
 }
 
 .tagline {
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
-  color: #bbb;
+  font-size: 1.2rem;
+  margin-bottom: 2.5rem;
+  color: #bffcff;
+  font-family: 'Open Sans', Arial, sans-serif;
+  font-weight: 600;
 }
 
 .role-toggle {
   display: flex;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  justify-content: center;
 }
 
 .role-toggle button {
   padding: 0.5rem 1.5rem;
   background: none;
-  color: white;
-  border: 2px solid #72E1F0;
-  border-radius: 5px;
+  color: var(--brand-white);
+  border: 2px solid var(--brand-blue-neon);
+  border-radius: 999px;
   font-weight: bold;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 1rem;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
 
-.role-toggle button.active {
-  background-color: #72E1F0;
-  color: #0a0a0a;
+.role-toggle button.active,
+.role-toggle button:focus {
+  background-color: var(--brand-blue-neon);
+  color: var(--brand-black);
+  box-shadow: var(--brand-glow);
 }
 
 .signup-btn {
-  background-color: #72E1F0;
-  color: #0A0A0A;
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
+  background-color: var(--brand-blue-neon);
+  color: var(--brand-black);
+  padding: 1rem 2.5rem;
+  font-size: 1.2rem;
   font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 999px;
   cursor: pointer;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--brand-glow);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.signup-btn:hover {
+  background-color: var(--brand-blue);
+  box-shadow: 0 0 16px var(--brand-blue-neon), 0 0 32px var(--brand-blue-neon);
 }
 
 .login-link {
-  color: #bbb;
+  color: #bffcff;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1rem;
   text-decoration: underline;
+  margin-top: 0.5rem;
+  font-family: 'Open Sans', Arial, sans-serif;
+}
+
+@media (max-width: 600px) {
+  .logo-text { font-size: 2rem; }
+  .signup-btn { font-size: 1rem; }
 }

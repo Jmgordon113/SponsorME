@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
-const SponsorshipSchema = new mongoose.Schema({
-  sponsorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  opportunityId: { type: mongoose.Schema.Types.ObjectId, ref: 'Opportunity', required: true },
-  amount: { type: Number, required: true },
-  timestamp: { type: Date, default: Date.now },
-});
+const sponsorshipSchema = new mongoose.Schema({
+  sponsor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  opportunity: { type: mongoose.Schema.Types.ObjectId, ref: 'Opportunity', required: true },
+  level: { type: String },
+  amount: { type: Number },
+  message: { type: String }
+}, { timestamps: true });
 
-module.exports = mongoose.model('Sponsorship', SponsorshipSchema);
+module.exports = mongoose.model('Sponsorship', sponsorshipSchema);
