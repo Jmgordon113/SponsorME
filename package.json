@@ -4,7 +4,7 @@
   "description": "A platform to connect sponsors with sponsees.",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node server/index.js",
     "dev": "ts-node-dev --respawn --transpile-only server/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
