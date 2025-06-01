@@ -9,12 +9,12 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "baseUrl": "./frontend/src",
+    "baseUrl": "./client/src",
     "paths": {
       "@components/*": ["components/*"],
       "@pages/*": ["pages/*"]
     }
   },
-  "include": ["frontend/src", "server"],
+  "include": ["client/src", "server"],
   "exclude": ["node_modules", "build", "dist"]
 }
